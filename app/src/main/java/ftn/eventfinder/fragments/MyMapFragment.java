@@ -2,10 +2,12 @@ package ftn.eventfinder.fragments;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -16,6 +18,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -26,11 +30,18 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.squareup.picasso.Picasso;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import ftn.eventfinder.R;
@@ -58,6 +69,7 @@ public class MyMapFragment extends Fragment implements LocationListener, OnMapRe
 	private android.support.v7.app.AlertDialog dialog;
 
 	private Marker home;
+	private HashMap<Marker, Event> markers;
 
 	List<Event> events = new ArrayList<Event>();
 	public static MyMapFragment newInstance() {
@@ -122,7 +134,10 @@ public class MyMapFragment extends Fragment implements LocationListener, OnMapRe
 			}
 		}
 
-
+		if(markers == null)
+		{
+			markers = new HashMap<Marker, Event>();
+		}
 	}
 
 	@Override
@@ -225,6 +240,14 @@ public class MyMapFragment extends Fragment implements LocationListener, OnMapRe
 		//Toast.makeText(getActivity(), "onLocationChange()", Toast.LENGTH_SHORT).show();
 
 		//addMarker(location);
+		LatLng loc1 = new LatLng(location.getLatitude(), location.getLongitude());
+		Circle circle = map.addCircle(new CircleOptions()
+				.center(loc1)
+				.radius(2500)
+				.strokeColor(Color.LTGRAY)
+				.fillColor(Color.TRANSPARENT));
+
+
 	}
 
 	@Override
@@ -257,22 +280,40 @@ public class MyMapFragment extends Fragment implements LocationListener, OnMapRe
 		map = googleMap;
 		try {
 			map.setMyLocationEnabled(true);
+
 		}catch(SecurityException e){
 
 		}
 
-
-
+		map.setInfoWindowAdapter(new MapInfoAdapter());
 		map.setOnMarkerClickListener(new OnMarkerClickListener() {
 
 			@Override
 			public boolean onMarkerClick(Marker marker) {
 
+				if(markers.containsKey(marker)) {
 
-				marker.showInfoWindow();
-				//Intent intent = new Intent(getActivity(), EventDetailView.class);
-				//startActivity(intent);
-				//FragmentTransition.to(MyFragment.newInstance(), getActivity(), true);
+					CameraPosition cameraPosition = new CameraPosition.Builder()
+							.target(marker.getPosition()).zoom(map.getCameraPosition().zoom).build();
+
+					map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+					marker.showInfoWindow();
+					//map.moveCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
+					//Intent intent = new Intent(getActivity(), EventDetailView.class);
+					//startActivity(intent);
+					//FragmentTransition.to(MyFragment.newInstance(), getActivity(), true);
+					int numberOfEvents=0;
+					Event e=markers.get(marker);
+					for (Event event : events) {
+						if(event.getVenueId().equals(e.getVenueId()))
+							numberOfEvents++;
+
+					}
+					if(numberOfEvents>1)
+						Toast.makeText(getActivity(),"Multiple events on this location, tap the marker to cycle through them", Toast.LENGTH_LONG).show();
+
+
+				}
 				return true;
 			}
 		});
@@ -285,6 +326,11 @@ public class MyMapFragment extends Fragment implements LocationListener, OnMapRe
 				//Intent intent = new Intent(getActivity(), EventDetailView.class);
 				//startActivity(intent);
 
+				Event event = markers.get(arg0);
+				Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.facebook.com/events/"+event.getEventId()));
+				startActivity(browserIntent);
+
+
 			}
 		});
 
@@ -294,10 +340,10 @@ public class MyMapFragment extends Fragment implements LocationListener, OnMapRe
 			GetDataFromServer(location);
 			LatLng loc = new LatLng(location.getLatitude(), location.getLongitude());
 			CameraPosition cameraPosition = new CameraPosition.Builder()
-					.target(loc).zoom(14).build();
+					.target(loc).zoom(18).build();
 
-			map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-
+			//map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+			map.moveCamera(CameraUpdateFactory.newLatLngZoom(loc,14));
 		}
 	}
 
@@ -341,16 +387,103 @@ public class MyMapFragment extends Fragment implements LocationListener, OnMapRe
 	}
 
 	public void PopulateWithMarkers(){
+
+		markers.clear();
+
 		for (Event e : events) {
 			LatLng lokacija = new LatLng(e.getVenueLocation().getLatitude(), e.getVenueLocation().getLongitude());
-			map.addMarker(new MarkerOptions()
+			Marker marker = map.addMarker(new MarkerOptions()
 					.title(e.getEventName())
 					.snippet(e.getVenueName())
 					.icon(BitmapDescriptorFactory
 							.defaultMarker(BitmapDescriptorFactory.HUE_RED))
 					.position(lokacija));
 
-
+			markers.put(marker, e);
 		}
 	}
+
+
+	private class MapInfoAdapter implements GoogleMap.InfoWindowAdapter {
+
+		public MapInfoAdapter()
+		{
+			// TODO Auto-generated constructor stub
+		}
+
+		@Override
+		public View getInfoContents(Marker arg0)
+		{
+			View view = getLayoutInflater(null).inflate(R.layout.info_window_layout, null);
+
+			Event event = markers.get(arg0);
+
+			TextView title = (TextView) view.findViewById(R.id.marker_name);
+			title.setText(event.getEventName());
+
+			TextView date = (TextView) view.findViewById(R.id.marker_date);
+
+			SimpleDateFormat incomingFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+			Date date1=null;
+			try {
+			date1 = incomingFormat.parse(event.getEventStarttime());
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			SimpleDateFormat outgoingFormat = new SimpleDateFormat("EEEE, dd MMMM yyyy", java.util.Locale.getDefault());
+
+			date.setText(outgoingFormat.format(date1));
+
+			TextView place = (TextView) view.findViewById(R.id.marker_place);
+			place.setText(event.getVenueName());
+
+			ImageView image = (ImageView) view.findViewById(R.id.marker_picture);
+
+			if(event.getEventProfilePicture() != null)
+			{
+
+
+				//Picasso.with(view.getContext()).load(event.getEventProfilePicture()).into(image);
+				Picasso.with(view.getContext())
+						.load(event.getEventProfilePicture())
+						.placeholder(R.drawable.image_placeholder)
+						.into(image, new MarkerCallback(arg0));
+			}
+
+
+
+			return view;
+		}
+
+		@Override
+		public View getInfoWindow(Marker arg0) {
+			return null;
+		}
+
+	}
+
+	public class MarkerCallback implements com.squareup.picasso.Callback {
+		Marker marker=null;
+
+		MarkerCallback(Marker marker) {
+			this.marker=marker;
+		}
+
+		@Override
+		public void onError() {
+			Log.e(getClass().getSimpleName(), "Error loading thumbnail!");
+		}
+
+		@Override
+		public void onSuccess() {
+			if (marker != null && marker.isInfoWindowShown()) {
+				marker.hideInfoWindow();
+				marker.showInfoWindow();
+			}
+		}
+	}
+
+
+	
+
 }

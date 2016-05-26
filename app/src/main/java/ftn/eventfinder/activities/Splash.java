@@ -1,5 +1,6 @@
 package ftn.eventfinder.activities;
 
+import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
