@@ -7,4 +7,61 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_splash">splash</string>
+
+    <string name="pref_sync_title">Allow Sync</string>
+    <string name="pref_sync_summ">Allow app to sync data automatically, when wifi is avalible</string>
+    <string name="pref_syncConnectionType">Sync interval</string>
+    <string name="pref_radiusConnectionType">Radius lookup</string>
+
+    <string name="pref_sync_list">pref_sync_list</string>
+    <string name="pref_radius">pref_radius</string>
+    <string name="pref_sync">pref_sync</string>
+
+    <string name="notifications">Notifications</string>
+    <string name="notif_on_my_review">On my reviews</string>
+    <string name="notif_on_my_comment">On my comments</string>
+    <string name="notif_on_my_review_key">notif_on_my_review</string>
+    <string name="notif_on_my_comment_key">notif_on_my_comment</string>
+    <string name="notif_on_my_review_summ">Send you notifications on reviews that you have created after sync</string>
+    <string name="notif_on_my_comment_summ">Send you notifications on reviews that you have ccommented after sync</string>
+
+    <string name="notif_on_sync_key">notif_on_sync</string>
+    <string name="notif_on_sync_summ">Send you notifications about sync</string>
+    <string name="notif_on_sync_title">Sync notifications</string>
+
+    <string name="turn_wifi_on">Turn wifi on</string>
+    <string name="turn_notif_on">Stop notification</string>
+
+    <string name="tag_filter">Tag filter</string>
+
+    <string name="created_by">Created by</string>
+
+    <string name="sync_data">Sync data</string>
+
+    <string name="autosync_problem">Automatic Sync problem</string>
+    <string name="no_internet">Bad news, no internet connection</string>
+    <string name="autosync_warning">Automatic Sync warning</string>
+    <string name="connect_to_wifi">Please connect to wifi to sync data</string>
+    <string name="autosync">Automatic Sync</string>
+    <string name="good_news_sync">Good news, everything is sync now.</string>
+    <string name="title_activity_settings">Settings</string>
+
+
+
+
+
+   <!-- Za nas settings-->
+    <string-array name="pref_syncConnectionTypes_entries">
+        <item>1 min</item>
+        <item>10 min</item>
+        <item>30 min</item>
+        <item>60 min</item>
+    </string-array>
+
+    <string-array name="pref_syncConnectionTypes_values">
+        <item>1</item>
+        <item>10</item>
+        <item>30</item>
+        <item>60</item>
+    </string-array>
 </resources>

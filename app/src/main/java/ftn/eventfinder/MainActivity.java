@@ -1,7 +1,13 @@
 package ftn.eventfinder;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.view.View;
@@ -13,13 +19,33 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
+import ftn.eventfinder.sync.SyncReceiver;
+import ftn.eventfinder.sync.SyncService;
 import ftn.eventfinder.activities.MapsActivity;
+import ftn.eventfinder.activities.MyPreferenceActivity;
 import ftn.eventfinder.fragments.MyMapFragment;
+import ftn.eventfinder.tools.ConnectivityTools;
 import ftn.eventfinder.tools.FragmentTransition;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    //sync
+    private PendingIntent pendingIntent;
+    private AlarmManager manager;
+
+    private SyncReceiver sync;
+    public static String SYNC_DATA = "SYNC_DATA";
+    private String synctime;
+    private boolean allowSync;
+    private String lookupRadius;
+
+    private boolean allowReviewNotif;
+    private boolean allowCommentedNotif;
+    private SharedPreferences sharedPreferences;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +76,34 @@ public class MainActivity extends AppCompatActivity
         //navigationView.setCheckedItem(R.id.nav_map);
         //onNavigationItemSelected(navigationView.getMenu().getItem(0));
         navigationView.getMenu().performIdentifierAction(R.id.nav_map, 0);
+
+        setUpReceiver();
+    }
+
+    private void setUpReceiver(){
+        sync = new SyncReceiver();
+
+        // Retrieve a PendingIntent that will perform a broadcast
+        Intent alarmIntent = new Intent(this, SyncService.class);
+        pendingIntent = PendingIntent.getService(this, 0, alarmIntent, 0);
+
+        manager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        consultPreferences();
+    }
+
+    private void consultPreferences(){
+        synctime = sharedPreferences.getString(getString(R.string.pref_sync_list), "1");// pola minuta
+        allowSync = sharedPreferences.getBoolean(getString(R.string.pref_sync), false);
+
+        lookupRadius = sharedPreferences.getString(getString(R.string.pref_radius), "1");//1km
+
+        allowCommentedNotif = sharedPreferences.getBoolean(getString(R.string.notif_on_my_comment_key), false);
+        allowReviewNotif = sharedPreferences.getBoolean(getString(R.string.notif_on_my_review_key), false);
+
+        Toast.makeText(MainActivity.this, allowSync + " " + lookupRadius + " " + synctime, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -96,10 +150,11 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_gallery) {
             Intent mapa = new Intent(MainActivity.this,MapsActivity.class);
             startActivity(mapa);
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
+        } else if (id == R.id.nav_refresh) {
+            startService(new Intent(this, SyncService.class));
+        } else if (id == R.id.nav_settings) {
+            Intent preference = new Intent(MainActivity.this,MyPreferenceActivity.class);
+            startActivity(preference);
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {
@@ -110,7 +165,40 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+    @Override
+    protected void onResume() {
+        // TODO Auto-generated method stub
+        super.onResume();
 
+        //Za slucaj da referenca nije postavljena da se izbegne problem sa androidom!
+        if (manager == null) {
+            setUpReceiver();
+        }
 
+        if(allowSync){
+            int interval = ConnectivityTools.calculateTimeTillNextSync(Integer.parseInt(synctime));
+            manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
+            Toast.makeText(this, "Alarm Set", Toast.LENGTH_SHORT).show();
+        }
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(SYNC_DATA);
+
+        registerReceiver(sync, filter);
+    }
+    @Override
+    protected void onPause() {
+        if (manager != null) {
+            manager.cancel(pendingIntent);
+        }
+
+        //osloboditi resurse
+        if(sync != null){
+            unregisterReceiver(sync);
+        }
+
+        super.onPause();
+
+    }
 
 }

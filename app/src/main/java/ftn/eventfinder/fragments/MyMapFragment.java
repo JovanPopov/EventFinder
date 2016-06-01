@@ -115,6 +115,8 @@ public class MyMapFragment extends Fragment implements LocationListener, OnMapRe
 		setHasOptionsMenu(true);
 
 		//Toast.makeText(getActivity(), "onResume()", Toast.LENGTH_SHORT).show();
+		long minTime = 60000;
+		float minDistance = 15;
 
 		createMapFragmentAndInflate();
 
@@ -128,7 +130,8 @@ public class MyMapFragment extends Fragment implements LocationListener, OnMapRe
 			// Toast.makeText(getActivity(), "noService",
 			// Toast.LENGTH_SHORT).show();
 			try {
-				locationManager.requestLocationUpdates(provider, 0, 0, this);
+				locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTime, minDistance, this);
+				locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistance, this);
 			} catch (SecurityException e) {
 				//dialogGPS(this.getContext()); // lets the user know there is a problem with the gps
 			}
@@ -156,12 +159,23 @@ public class MyMapFragment extends Fragment implements LocationListener, OnMapRe
 	}
 
 	private void createMapFragmentAndInflate() {
+
+
 		// Get LocationManager object from System Service LOCATION_SERVICE
 		locationManager = (LocationManager) getActivity().getSystemService(
 				Context.LOCATION_SERVICE);
 
 		Criteria criteria = new Criteria();
+
 		provider = locationManager.getBestProvider(criteria, true);
+
+
+		//Toast.makeText(getActivity(), "Best Provider " + bestProvider, Toast.LENGTH_SHORT).show();
+
+		//locationManager.requestLocationUpdates(bestProvider, minTime, minDistance, this);
+
+
+
 
 		mMapFragment = SupportMapFragment.newInstance();
 		FragmentTransaction transaction = getChildFragmentManager()
@@ -226,7 +240,7 @@ public class MyMapFragment extends Fragment implements LocationListener, OnMapRe
 				.title("Hey there.")
 				.snippet("You are here at the moment :)")
 				.icon(BitmapDescriptorFactory
-						.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+						.defaultMarker(BitmapDescriptorFactory.HUE_CYAN))
 				.position(loc));
 
 	/*	CameraPosition cameraPosition = new CameraPosition.Builder()
@@ -237,35 +251,36 @@ public class MyMapFragment extends Fragment implements LocationListener, OnMapRe
 
 	@Override
 	public void onLocationChanged(Location location) {
-		//Toast.makeText(getActivity(), "onLocationChange()", Toast.LENGTH_SHORT).show();
-
-		//addMarker(location);
+		map.clear();
+		Toast.makeText(getActivity(), "onLocationChanged()", Toast.LENGTH_SHORT).show();
+		addMarker(location);
 		LatLng loc1 = new LatLng(location.getLatitude(), location.getLongitude());
 		Circle circle = map.addCircle(new CircleOptions()
 				.center(loc1)
 				.radius(2500)
 				.strokeColor(Color.LTGRAY)
 				.fillColor(Color.TRANSPARENT));
-
+		GetDataFromServer(location);
 
 	}
 
 	@Override
 	public void onProviderDisabled(String provider) {
 		// TODO Auto-generated method stub
+		Toast.makeText(getActivity(), "onProviderDisabled()", Toast.LENGTH_SHORT).show();
 
 	}
 
 	@Override
 	public void onProviderEnabled(String provider) {
 		// TODO Auto-generated method stub
-
+		Toast.makeText(getActivity(), "onProviderEnabled()", Toast.LENGTH_SHORT).show();
 	}
 
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 		// TODO Auto-generated method stub
-
+		Toast.makeText(getActivity(), "onStatusChanged()", Toast.LENGTH_SHORT).show();
 	}
 
 	@Override
@@ -275,11 +290,13 @@ public class MyMapFragment extends Fragment implements LocationListener, OnMapRe
 			location = locationManager.getLastKnownLocation(provider);
 		} catch (SecurityException e) {
 		}
-		//Toast.makeText(getActivity(), "onMapReady()", Toast.LENGTH_SHORT).show();
+
+		Toast.makeText(getActivity(), "onMapReady()", Toast.LENGTH_SHORT).show();
 		LatLng centar = new LatLng(45.254294, 19.842446);
 		map = googleMap;
 		try {
 			map.setMyLocationEnabled(true);
+
 
 		}catch(SecurityException e){
 
@@ -337,7 +354,7 @@ public class MyMapFragment extends Fragment implements LocationListener, OnMapRe
 
 
 		if (location != null) {
-			GetDataFromServer(location);
+			//GetDataFromServer(location);
 			LatLng loc = new LatLng(location.getLatitude(), location.getLongitude());
 			CameraPosition cameraPosition = new CameraPosition.Builder()
 					.target(loc).zoom(18).build();
@@ -359,7 +376,7 @@ public class MyMapFragment extends Fragment implements LocationListener, OnMapRe
 
 
 		EventsInterface service = retrofit.create(EventsInterface.class);
-		Call<EventsResponse> call = service.getEvents();
+		Call<EventsResponse> call = service.getEvents(location.getLatitude(), location.getLongitude());
 		call.enqueue(new Callback<EventsResponse>() {
 			@Override
 			public void onResponse(Call<EventsResponse> call, Response<EventsResponse> response) {
