@@ -15,6 +15,7 @@ import java.util.TimerTask;
 
 import ftn.eventfinder.MainActivity;
 import ftn.eventfinder.R;
+import ftn.eventfinder.sync.ClearDbService;
 
 public class Splash extends AppCompatActivity {
 
@@ -24,6 +25,7 @@ public class Splash extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
+        startService(new Intent(this, ClearDbService.class));
 
         new Timer().schedule(new TimerTask() {
              @Override

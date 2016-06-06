@@ -54,7 +54,7 @@ public class SyncReceiver extends BroadcastReceiver {
                     mBuilder.addAction(R.drawable.ic_action_network_wifi, context.getString(R.string.turn_wifi_on), pIntent);
                     mBuilder.addAction(R.drawable.ic_action_settings, context.getString(R.string.turn_notif_on), pIntentSettings);
                     Toast.makeText(context, "No internet connection", Toast.LENGTH_LONG).show();
-                }else if(resultCode == ConnectivityTools.TYPE_MOBILE && serverResponse == ConnectivityTools.SERVER_RESPONSE_OK){
+                }else if(resultCode == ConnectivityTools.TYPE_MOBILE){
                  /*   bm = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_action_network_cell);
                     mBuilder.setSmallIcon(R.drawable.ic_action_warning);
                     mBuilder.setContentTitle(context.getString(R.string.autosync_warning));
@@ -63,13 +63,15 @@ public class SyncReceiver extends BroadcastReceiver {
                     mBuilder.addAction(R.drawable.ic_action_settings, context.getString(R.string.turn_notif_on), pIntentSettings);*/
                     Toast.makeText(context, "Data sync complete", Toast.LENGTH_LONG).show();
                     Toast.makeText(context, "You are using mobile data", Toast.LENGTH_LONG).show();
-                }else if(resultCode == ConnectivityTools.TYPE_WIFI && serverResponse == ConnectivityTools.SERVER_RESPONSE_OK){
+                }else if(resultCode == ConnectivityTools.TYPE_WIFI){
                    /* bm = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_launcher);
                     mBuilder.setSmallIcon(R.drawable.ic_action_refresh_w);
                     mBuilder.setContentTitle(context.getString(R.string.autosync));
                     mBuilder.setContentText(context.getString(R.string.good_news_sync));
                     mBuilder.addAction(R.drawable.ic_action_settings, context.getString(R.string.turn_notif_on), pIntentSettings);*/
                     Toast.makeText(context, "Data sync complete", Toast.LENGTH_LONG).show();
+                }else if(serverResponse == ConnectivityTools.SERVER_RESPONSE_ERROR){
+                    Toast.makeText(context, "Sync Complete", Toast.LENGTH_LONG).show();
                 }else if(serverResponse == ConnectivityTools.SERVER_RESPONSE_ERROR){
                     Toast.makeText(context, "Failed to connect to our server, please try again later", Toast.LENGTH_LONG).show();
                 }

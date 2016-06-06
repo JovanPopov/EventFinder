@@ -1,7 +1,9 @@
 package ftn.eventfinder.fragments;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
@@ -9,8 +11,10 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -22,6 +26,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.activeandroid.query.Select;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
@@ -47,8 +52,12 @@ import java.util.List;
 import ftn.eventfinder.R;
 import ftn.eventfinder.RetrofitInt.EventsInterface;
 import ftn.eventfinder.dialogs.LocationDialog;
+import ftn.eventfinder.entities.EventStats_db;
+import ftn.eventfinder.entities.Event_db;
+import ftn.eventfinder.entities.VenueLocation_db;
 import ftn.eventfinder.model.Event;
 import ftn.eventfinder.model.EventsResponse;
+import ftn.eventfinder.sync.SyncService;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -69,9 +78,10 @@ public class MyMapFragment extends Fragment implements LocationListener, OnMapRe
 	private android.support.v7.app.AlertDialog dialog;
 
 	private Marker home;
-	private HashMap<Marker, Event> markers;
+	private HashMap<Marker, Event_db> markers;
 
 	List<Event> events = new ArrayList<Event>();
+	boolean zoom=false;
 	public static MyMapFragment newInstance() {
 
 		MyMapFragment mpf = new MyMapFragment();
@@ -139,9 +149,52 @@ public class MyMapFragment extends Fragment implements LocationListener, OnMapRe
 
 		if(markers == null)
 		{
-			markers = new HashMap<Marker, Event>();
+			markers = new HashMap<Marker, Event_db>();
 		}
+
+		//navigation drawer highlighting
+		NavigationView navigationView = (NavigationView) getActivity().findViewById(R.id.nav_view);
+		navigationView.setCheckedItem(R.id.nav_map);
+
+
+
+		//localreceiver
+		LocalBroadcastManager.getInstance(this.getActivity()).registerReceiver(mReceiver, new IntentFilter("syncResponse"));
 	}
+
+
+	public BroadcastReceiver mReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String message = intent.getStringExtra("foo");
+			LatLng currentLocation = new LatLng( intent.getDoubleExtra("lat",0), intent.getDoubleExtra("lng",0));
+			Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+			if(map!=null) {
+
+
+				if (!zoom) {
+
+					//map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 10));
+
+					CameraPosition cameraPosition = new CameraPosition.Builder()
+							.target(currentLocation).zoom(13).build();
+
+					map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+					zoom = true;
+				}
+
+				//addMarker(location);
+				Circle circle = map.addCircle(new CircleOptions()
+						.center(currentLocation)
+						.radius(2500)
+						.strokeColor(Color.LTGRAY)
+						.fillColor(Color.TRANSPARENT));
+				//GetDataFromServer(currentLocation);
+				RefreshMarkers();
+			}
+		}
+	};
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -202,6 +255,7 @@ public class MyMapFragment extends Fragment implements LocationListener, OnMapRe
 			locationManager.removeUpdates(this);
 		} catch (SecurityException e) {
 		}
+		LocalBroadcastManager.getInstance(this.getActivity()).unregisterReceiver(mReceiver);
 	}
 
 	@Override
@@ -251,49 +305,62 @@ public class MyMapFragment extends Fragment implements LocationListener, OnMapRe
 
 	@Override
 	public void onLocationChanged(Location location) {
-		map.clear();
 		Toast.makeText(getActivity(), "onLocationChanged()", Toast.LENGTH_SHORT).show();
-		addMarker(location);
-		LatLng loc1 = new LatLng(location.getLatitude(), location.getLongitude());
-		Circle circle = map.addCircle(new CircleOptions()
-				.center(loc1)
-				.radius(2500)
-				.strokeColor(Color.LTGRAY)
-				.fillColor(Color.TRANSPARENT));
-		GetDataFromServer(location);
+		//currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
+		/*if(map!=null) {
 
+
+			if (!zoom) {
+
+				CameraPosition cameraPosition = new CameraPosition.Builder()
+						.target(currentLocation).zoom(18).build();
+
+				//map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+				map.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, 14));
+				zoom = true;
+			}
+
+			//addMarker(location);
+			Circle circle = map.addCircle(new CircleOptions()
+					.center(currentLocation)
+					.radius(2500)
+					.strokeColor(Color.LTGRAY)
+					.fillColor(Color.TRANSPARENT));
+			GetDataFromServer(location);
+		}*/
+
+		Intent si = new Intent(this.getActivity(), SyncService.class);
+		si.putExtra("location", location);
+		getActivity().startService(si);
 	}
 
 	@Override
 	public void onProviderDisabled(String provider) {
 		// TODO Auto-generated method stub
-		Toast.makeText(getActivity(), "onProviderDisabled()", Toast.LENGTH_SHORT).show();
 
 	}
 
 	@Override
 	public void onProviderEnabled(String provider) {
 		// TODO Auto-generated method stub
-		Toast.makeText(getActivity(), "onProviderEnabled()", Toast.LENGTH_SHORT).show();
 	}
 
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 		// TODO Auto-generated method stub
-		Toast.makeText(getActivity(), "onStatusChanged()", Toast.LENGTH_SHORT).show();
 	}
 
 	@Override
 	public void onMapReady(GoogleMap googleMap) {
+		map = googleMap;
 		Location location = null;
 		try {
 			location = locationManager.getLastKnownLocation(provider);
 		} catch (SecurityException e) {
 		}
 
-		Toast.makeText(getActivity(), "onMapReady()", Toast.LENGTH_SHORT).show();
 		LatLng centar = new LatLng(45.254294, 19.842446);
-		map = googleMap;
+
 		try {
 			map.setMyLocationEnabled(true);
 
@@ -302,25 +369,30 @@ public class MyMapFragment extends Fragment implements LocationListener, OnMapRe
 
 		}
 
+
 		map.setInfoWindowAdapter(new MapInfoAdapter());
 		map.setOnMarkerClickListener(new OnMarkerClickListener() {
 
 			@Override
 			public boolean onMarkerClick(Marker marker) {
 
+
 				if(markers.containsKey(marker)) {
 
-					CameraPosition cameraPosition = new CameraPosition.Builder()
-							.target(marker.getPosition()).zoom(map.getCameraPosition().zoom).build();
 
-					map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+						CameraPosition cameraPosition = new CameraPosition.Builder()
+								.target(marker.getPosition()).zoom(map.getCameraPosition().zoom).build();
+
+						map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+
 					marker.showInfoWindow();
 					//map.moveCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
 					//Intent intent = new Intent(getActivity(), EventDetailView.class);
 					//startActivity(intent);
 					//FragmentTransition.to(MyFragment.newInstance(), getActivity(), true);
 					int numberOfEvents=0;
-					Event e=markers.get(marker);
+					Event_db e=markers.get(marker);
 					for (Event event : events) {
 						if(event.getVenueId().equals(e.getVenueId()))
 							numberOfEvents++;
@@ -343,17 +415,19 @@ public class MyMapFragment extends Fragment implements LocationListener, OnMapRe
 				//Intent intent = new Intent(getActivity(), EventDetailView.class);
 				//startActivity(intent);
 
-				Event event = markers.get(arg0);
+				Event_db event = markers.get(arg0);
 				Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.facebook.com/events/"+event.getEventId()));
 				startActivity(browserIntent);
 
 
 			}
 		});
+		map.clear();
+		markers.clear();
 
+		zoom=false;
 
-
-		if (location != null) {
+		/*if (location != null) {
 			//GetDataFromServer(location);
 			LatLng loc = new LatLng(location.getLatitude(), location.getLongitude());
 			CameraPosition cameraPosition = new CameraPosition.Builder()
@@ -361,12 +435,16 @@ public class MyMapFragment extends Fragment implements LocationListener, OnMapRe
 
 			//map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 			map.moveCamera(CameraUpdateFactory.newLatLngZoom(loc,14));
-		}
+		}*/
 	}
 
 
-	public void GetDataFromServer(Location location) {
+	public void GetDataFromServer(LatLng location) {
 		//final String BASE_URL = "http://localhost:3000/events?lat=" + location.getLatitude() + "&lng=" + location.getLongitude() + "&distance=2500&sort=venue&access_token=263841713956622|l2uKn8wbzuk3OpKM7BzwB7y1VvY/";
+
+
+
+
         final String BASE_URL = "http://188.2.87.248:3000/";
 
         Retrofit retrofit = new Retrofit.Builder()
@@ -376,7 +454,7 @@ public class MyMapFragment extends Fragment implements LocationListener, OnMapRe
 
 
 		EventsInterface service = retrofit.create(EventsInterface.class);
-		Call<EventsResponse> call = service.getEvents(location.getLatitude(), location.getLongitude());
+		Call<EventsResponse> call = service.getEvents(location.latitude, location.longitude);
 		call.enqueue(new Callback<EventsResponse>() {
 			@Override
 			public void onResponse(Call<EventsResponse> call, Response<EventsResponse> response) {
@@ -386,7 +464,7 @@ public class MyMapFragment extends Fragment implements LocationListener, OnMapRe
 				//Log.i("odgovor",events.get(0).getEventName());
 
 				Toast.makeText(getActivity(), "number of events:" + events.size(), Toast.LENGTH_SHORT).show();
-				PopulateWithMarkers();
+				//PopulateWithMarkers();
 
 			}
 
@@ -403,20 +481,23 @@ public class MyMapFragment extends Fragment implements LocationListener, OnMapRe
 
 	}
 
-	public void PopulateWithMarkers(){
+	public void RefreshMarkers(){
+		List<Event_db> eve=new Select().from(Event_db.class).execute();
 
-		markers.clear();
-
-		for (Event e : events) {
+		for (Event_db e : eve) {
 			LatLng lokacija = new LatLng(e.getVenueLocation().getLatitude(), e.getVenueLocation().getLongitude());
-			Marker marker = map.addMarker(new MarkerOptions()
-					.title(e.getEventName())
-					.snippet(e.getVenueName())
-					.icon(BitmapDescriptorFactory
-							.defaultMarker(BitmapDescriptorFactory.HUE_RED))
-					.position(lokacija));
 
-			markers.put(marker, e);
+			if(!markers.containsValue(e)) {
+
+				Marker marker = map.addMarker(new MarkerOptions()
+						.title(e.getEventName())
+						.snippet(e.getVenueName())
+						.icon(BitmapDescriptorFactory
+								.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+						.position(lokacija));
+
+				markers.put(marker, e);
+			}
 		}
 	}
 
@@ -433,7 +514,7 @@ public class MyMapFragment extends Fragment implements LocationListener, OnMapRe
 		{
 			View view = getLayoutInflater(null).inflate(R.layout.info_window_layout, null);
 
-			Event event = markers.get(arg0);
+			Event_db event = markers.get(arg0);
 
 			TextView title = (TextView) view.findViewById(R.id.marker_name);
 			title.setText(event.getEventName());

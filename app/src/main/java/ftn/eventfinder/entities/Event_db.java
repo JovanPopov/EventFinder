@@ -1,36 +1,78 @@
 
-package ftn.eventfinder.model;
+package ftn.eventfinder.entities;
 
 
+
+import com.activeandroid.Model;
+import com.activeandroid.annotation.Column;
+import com.activeandroid.annotation.Table;
+import com.google.gson.annotations.Expose;
 
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Generated;
 
+@Table(name = "Events")
 @Generated("org.jsonschema2pojo")
-public class Event {
+public class Event_db extends Model {
 
+
+    @Column(name = "venueId")
     private String venueId;
+    @Column(name = "venueName")
     private String venueName;
+    @Column(name = "venueCoverPicture")
     private String venueCoverPicture;
+    @Column(name = "venueProfilePicture")
     private String venueProfilePicture;
-    private VenueLocation venueLocation;
+    @Column(name = "VenueLocation", onUpdate = Column.ForeignKeyAction.CASCADE, onDelete = Column.ForeignKeyAction.CASCADE)
+    private VenueLocation_db venueLocation_db;
+    @Column(name = "eventId")
     private String eventId;
+    @Column(name = "eventName")
     private String eventName;
+    @Column(name = "eventCoverPicture")
     private String eventCoverPicture;
+    @Expose
+    @Column(name = "eventProfilePicture")
     private String eventProfilePicture;
+    @Column(name = "eventDescription")
     private String eventDescription;
+    @Column(name = "eventStarttime")
     private String eventStarttime;
+    @Column(name = "eventDistance")
     private String eventDistance;
+    @Column(name = "eventTimeFromNow")
     private Integer eventTimeFromNow;
-    private EventStats eventStats;
+    @Column(name = "EventStats", onUpdate = Column.ForeignKeyAction.CASCADE, onDelete = Column.ForeignKeyAction.CASCADE)
+    private EventStats_db eventStats_db;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
 
+    public Event_db() {
+    }
 
+    public Event_db(String venueId, String venueName, String venueCoverPicture, String venueProfilePicture, VenueLocation_db venueLocation, String eventId, String eventName, String eventCoverPicture, String eventProfilePicture, String eventDescription, String eventStarttime, String eventDistance, Integer eventTimeFromNow, EventStats_db eventStats_db, Map<String, Object> additionalProperties) {
+
+        this.venueId = venueId;
+        this.venueName = venueName;
+        this.venueCoverPicture = venueCoverPicture;
+        this.venueProfilePicture = venueProfilePicture;
+        this.venueLocation_db = venueLocation;
+        this.eventId = eventId;
+        this.eventName = eventName;
+        this.eventCoverPicture = eventCoverPicture;
+        this.eventProfilePicture = eventProfilePicture;
+        this.eventDescription = eventDescription;
+        this.eventStarttime = eventStarttime;
+        this.eventDistance = eventDistance;
+        this.eventTimeFromNow = eventTimeFromNow;
+        this.eventStats_db = eventStats_db;
+        this.additionalProperties = additionalProperties;
+    }
 
     /**
-     * 
+     *
      * @return
      *     The venueId
      */
@@ -39,7 +81,7 @@ public class Event {
     }
 
     /**
-     * 
+     *
      * @param venueId
      *     The venueId
      */
@@ -48,7 +90,7 @@ public class Event {
     }
 
     /**
-     * 
+     *
      * @return
      *     The venueName
      */
@@ -57,7 +99,7 @@ public class Event {
     }
 
     /**
-     * 
+     *
      * @param venueName
      *     The venueName
      */
@@ -66,7 +108,7 @@ public class Event {
     }
 
     /**
-     * 
+     *
      * @return
      *     The venueCoverPicture
      */
@@ -75,7 +117,7 @@ public class Event {
     }
 
     /**
-     * 
+     *
      * @param venueCoverPicture
      *     The venueCoverPicture
      */
@@ -84,7 +126,7 @@ public class Event {
     }
 
     /**
-     * 
+     *
      * @return
      *     The venueProfilePicture
      */
@@ -93,7 +135,7 @@ public class Event {
     }
 
     /**
-     * 
+     *
      * @param venueProfilePicture
      *     The venueProfilePicture
      */
@@ -102,25 +144,25 @@ public class Event {
     }
 
     /**
-     * 
+     *
      * @return
      *     The venueLocation
      */
-    public VenueLocation getVenueLocation() {
-        return venueLocation;
+    public VenueLocation_db getVenueLocation() {
+        return venueLocation_db;
     }
 
     /**
-     * 
+     *
      * @param venueLocation
      *     The venueLocation
      */
-    public void setVenueLocation(VenueLocation venueLocation) {
-        this.venueLocation = venueLocation;
+    public void setVenueLocation(VenueLocation_db venueLocation_db) {
+        this.venueLocation_db = venueLocation_db;
     }
 
     /**
-     * 
+     *
      * @return
      *     The eventId
      */
@@ -129,7 +171,7 @@ public class Event {
     }
 
     /**
-     * 
+     *
      * @param eventId
      *     The eventId
      */
@@ -138,7 +180,7 @@ public class Event {
     }
 
     /**
-     * 
+     *
      * @return
      *     The eventName
      */
@@ -147,7 +189,7 @@ public class Event {
     }
 
     /**
-     * 
+     *
      * @param eventName
      *     The eventName
      */
@@ -156,7 +198,7 @@ public class Event {
     }
 
     /**
-     * 
+     *
      * @return
      *     The eventCoverPicture
      */
@@ -165,7 +207,7 @@ public class Event {
     }
 
     /**
-     * 
+     *
      * @param eventCoverPicture
      *     The eventCoverPicture
      */
@@ -174,7 +216,7 @@ public class Event {
     }
 
     /**
-     * 
+     *
      * @return
      *     The eventProfilePicture
      */
@@ -183,7 +225,7 @@ public class Event {
     }
 
     /**
-     * 
+     *
      * @param eventProfilePicture
      *     The eventProfilePicture
      */
@@ -192,7 +234,7 @@ public class Event {
     }
 
     /**
-     * 
+     *
      * @return
      *     The eventDescription
      */
@@ -201,7 +243,7 @@ public class Event {
     }
 
     /**
-     * 
+     *
      * @param eventDescription
      *     The eventDescription
      */
@@ -210,7 +252,7 @@ public class Event {
     }
 
     /**
-     * 
+     *
      * @return
      *     The eventStarttime
      */
@@ -219,7 +261,7 @@ public class Event {
     }
 
     /**
-     * 
+     *
      * @param eventStarttime
      *     The eventStarttime
      */
@@ -228,7 +270,7 @@ public class Event {
     }
 
     /**
-     * 
+     *
      * @return
      *     The eventDistance
      */
@@ -237,7 +279,7 @@ public class Event {
     }
 
     /**
-     * 
+     *
      * @param eventDistance
      *     The eventDistance
      */
@@ -246,7 +288,7 @@ public class Event {
     }
 
     /**
-     * 
+     *
      * @return
      *     The eventTimeFromNow
      */
@@ -255,7 +297,7 @@ public class Event {
     }
 
     /**
-     * 
+     *
      * @param eventTimeFromNow
      *     The eventTimeFromNow
      */
@@ -264,21 +306,21 @@ public class Event {
     }
 
     /**
-     * 
+     *
      * @return
      *     The eventStats
      */
-    public EventStats getEventStats() {
-        return eventStats;
+    public EventStats_db getEventStats() {
+        return eventStats_db;
     }
 
     /**
-     * 
+     *
      * @param eventStats
      *     The eventStats
      */
-    public void setEventStats(EventStats eventStats) {
-        this.eventStats = eventStats;
+    public void setEventStats(EventStats_db eventStats_db) {
+        this.eventStats_db = eventStats_db;
     }
 
     public Map<String, Object> getAdditionalProperties() {
@@ -288,5 +330,6 @@ public class Event {
     public void setAdditionalProperty(String name, Object value) {
         this.additionalProperties.put(name, value);
     }
+
 
 }

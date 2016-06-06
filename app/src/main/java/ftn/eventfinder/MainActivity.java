@@ -21,9 +21,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.activeandroid.query.Delete;
+import com.activeandroid.query.Select;
+
+import java.util.List;
+
+import ftn.eventfinder.entities.EventStats_db;
+import ftn.eventfinder.entities.Event_db;
+import ftn.eventfinder.entities.VenueLocation_db;
+import ftn.eventfinder.fragments.EventsListFragment;
 import ftn.eventfinder.sync.SyncReceiver;
 import ftn.eventfinder.sync.SyncService;
-import ftn.eventfinder.activities.MapsActivity;
 import ftn.eventfinder.activities.MyPreferenceActivity;
 import ftn.eventfinder.fragments.MyMapFragment;
 import ftn.eventfinder.tools.ConnectivityTools;
@@ -54,14 +62,7 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -72,11 +73,10 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        //navigationView.setCheckedItem(R.id.nav_map);
-        //navigationView.setCheckedItem(R.id.nav_map);
-        //onNavigationItemSelected(navigationView.getMenu().getItem(0));
-        navigationView.getMenu().performIdentifierAction(R.id.nav_map, 0);
 
+        //defaultView
+        //navigationView.getMenu().performIdentifierAction(R.id.nav_map, 0);
+       // navigationView.setCheckedItem(R.id.nav_map);
         setUpReceiver();
     }
 
@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity
         allowCommentedNotif = sharedPreferences.getBoolean(getString(R.string.notif_on_my_comment_key), false);
         allowReviewNotif = sharedPreferences.getBoolean(getString(R.string.notif_on_my_review_key), false);
 
-        Toast.makeText(MainActivity.this, allowSync + " " + lookupRadius + " " + synctime, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(MainActivity.this, allowSync + " " + lookupRadius + " " + synctime, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -146,19 +146,40 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_map) {
             // Handle the map action
-            FragmentTransition.to(MyMapFragment.newInstance(), this, false);
-        } else if (id == R.id.nav_gallery) {
-            Intent mapa = new Intent(MainActivity.this,MapsActivity.class);
-            startActivity(mapa);
+            FragmentTransition.to(MyMapFragment.newInstance(), this, true);
+        } else if (id == R.id.nav_list) {
+            FragmentTransition.to(EventsListFragment.newInstance(), this, true);
+           /* FragmentManager fm = getFragmentManager();
+
+            if (fm.findFragmentById(android.R.id.content) == null) {
+                EventsListFragment list = new EventsListFragment();
+                fm.beginTransaction().add(android.R.id.content, list).commit();
+            }*/
+
         } else if (id == R.id.nav_refresh) {
             startService(new Intent(this, SyncService.class));
         } else if (id == R.id.nav_settings) {
             Intent preference = new Intent(MainActivity.this,MyPreferenceActivity.class);
             startActivity(preference);
         } else if (id == R.id.nav_share) {
-
+            new Delete().from(EventStats_db.class).execute();
+            new Delete().from(VenueLocation_db.class).execute();
+            new Delete().from(Event_db.class).execute();
+            List<Event_db> eve=new Select().from(Event_db.class).execute();
+            List<EventStats_db> eve1=new Select().from(EventStats_db.class).execute();
+            List<VenueLocation_db> eve2=new Select().from(VenueLocation_db.class).execute();
+            Toast.makeText(this,"Events size: " + String.valueOf(eve.size()) + "\n" +
+                            "VenueLocation size: " + String.valueOf(eve2.size())+ "\n" +
+                            "EventStats size: " + String.valueOf(eve1.size())
+                    , Toast.LENGTH_LONG).show();
         } else if (id == R.id.nav_send) {
-
+            int eve=new Select().from(Event_db.class).count();
+            int eve1=new Select().from(EventStats_db.class).count();
+            int eve2=new Select().from(VenueLocation_db.class).count();
+            Toast.makeText(this,"Events size: " + String.valueOf(eve) + "\n" +
+                    "VenueLocation size: " + String.valueOf(eve2)+ "\n" +
+                    "EventStats size: " + String.valueOf(eve1)
+                    , Toast.LENGTH_LONG).show();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
