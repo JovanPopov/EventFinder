@@ -47,9 +47,6 @@ public class SyncTask extends AsyncTask<LatLng, Void, String> {
 
 
 
-    private LocationManager locationManager;
-    private String provider;
-
     private Context context;
 
     private Date dateOfSynchronization;
@@ -92,6 +89,7 @@ public class SyncTask extends AsyncTask<LatLng, Void, String> {
             dateLastSynchronized = new Date(0); // sinhronizuj sve od pocetka epohe
         }
         dateLastSynchronizedString = dateFormat.format(dateLastSynchronized);
+
         loc=params[0];
        Log.i("poruka", "sync pokrenut");
         try {
@@ -275,9 +273,9 @@ public class SyncTask extends AsyncTask<LatLng, Void, String> {
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 
 
-    context.sendBroadcast(ints);
+   // context.sendBroadcast(ints);
 
-        Toast.makeText(context, result, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(context, result, Toast.LENGTH_SHORT).show();
         Toast.makeText(context, "New Entites: " + String.valueOf(newEntites), Toast.LENGTH_SHORT).show();
         Log.i("poruka", result);
 

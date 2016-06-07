@@ -23,6 +23,21 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory
+        android:title="App settings"
+        android:key="app_settings">
+
+
+        <ListPreference
+            android:dialogTitle="Home screen"
+            android:entries="@array/pref_home_entries"
+            android:entryValues="@array/pref_home_values"
+            android:key="pref_home_list"
+            android:title="Home screen"
+            android:summary="%s"
+            android:defaultValue="1"/>
+
+    </PreferenceCategory>
 
     <PreferenceCategory
         android:title="@string/notifications"

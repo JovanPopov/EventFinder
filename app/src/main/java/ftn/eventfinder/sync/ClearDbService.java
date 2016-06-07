@@ -11,9 +11,11 @@ import com.activeandroid.query.Select;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import ftn.eventfinder.MainActivity;
 import ftn.eventfinder.entities.Event_db;
 
 /**
@@ -44,7 +46,12 @@ public class ClearDbService extends IntentService {
             List<Event_db> queryResults=new Select().from(Event_db.class).execute();
             SimpleDateFormat incomingFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
             Date eventDate=null;
-            Date currentDate=new Date();
+            //Date currentDate=new Date();
+
+            int hours = 6;
+            Calendar calendar = Calendar.getInstance();
+            calendar.set( Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY)+ hours );
+            Date currentDate = calendar.getTime();
 
 
             for (Event_db e : queryResults) {
@@ -55,7 +62,11 @@ public class ClearDbService extends IntentService {
                 }
 
                 if(eventDate.before(currentDate)){
+
+                    e.getVenueLocation().delete();
+                    e.getEventStats().delete();
                     e.delete();
+
                     Log.i("clear", "entity deleted");
                     deletes++;
                 }
@@ -64,7 +75,14 @@ public class ClearDbService extends IntentService {
 
             }
 
-            showToast("Deleted entities: " + String.valueOf(deletes));
+            //showToast("Deleted entities: " + String.valueOf(deletes));
+
+
+           /* Intent dialogIntent = new Intent(this, MainActivity.class);
+            dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            dialogIntent.putExtra("deleted", deletes);
+            getApplication().startActivity(dialogIntent);*/
+
 
         } catch (Exception e) {
             // Restore interrupt status.
@@ -72,7 +90,7 @@ public class ClearDbService extends IntentService {
         }
     }
 
-    public void showToast(String message) {
+  /*  public void showToast(String message) {
         final String msg = message;
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
@@ -80,7 +98,7 @@ public class ClearDbService extends IntentService {
                 Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
             }
         });
-    }
+    }*/
 
 }
 

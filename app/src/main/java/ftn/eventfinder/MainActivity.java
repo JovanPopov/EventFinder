@@ -6,10 +6,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -23,9 +27,15 @@ import android.widget.Toast;
 
 import com.activeandroid.query.Delete;
 import com.activeandroid.query.Select;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 
 import java.util.List;
 
+import ftn.eventfinder.dialogs.LocationDialog;
 import ftn.eventfinder.entities.EventStats_db;
 import ftn.eventfinder.entities.Event_db;
 import ftn.eventfinder.entities.VenueLocation_db;
@@ -38,7 +48,8 @@ import ftn.eventfinder.tools.ConnectivityTools;
 import ftn.eventfinder.tools.FragmentTransition;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     //sync
     private PendingIntent pendingIntent;
@@ -50,9 +61,20 @@ public class MainActivity extends AppCompatActivity
     private boolean allowSync;
     private String lookupRadius;
 
+    private android.support.v7.app.AlertDialog dialog;
+
     private boolean allowReviewNotif;
     private boolean allowCommentedNotif;
     private SharedPreferences sharedPreferences;
+
+    //fusedLocation
+    Location mLastLocation;
+    private GoogleApiClient mGoogleApiClient;
+    private LocationRequest mLocationRequest;
+
+
+    FloatingActionButton fabn;
+    FloatingActionButton fabp;
 
 
     @Override
@@ -62,7 +84,13 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+       // Toast.makeText(MainActivity.this,String.valueOf(savedInstanceState.get("deleted")) , Toast.LENGTH_SHORT).show();
 
+        //floatingACtionButtons
+        fabn = (FloatingActionButton) findViewById(R.id.fab_next);
+        fabp = (FloatingActionButton) findViewById(R.id.fab_previous);
+        fabn.hide();
+        fabp.hide();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -73,11 +101,19 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         //defaultView
-        //navigationView.getMenu().performIdentifierAction(R.id.nav_map, 0);
-       // navigationView.setCheckedItem(R.id.nav_map);
+        String home = sharedPreferences.getString("pref_home_list", "1");
+        if(home.equals("1")) {
+            navigationView.getMenu().performIdentifierAction(R.id.nav_map, 0);
+            navigationView.setCheckedItem(R.id.nav_map);
+        }else if (home.equals("2")){
+            navigationView.getMenu().performIdentifierAction(R.id.nav_list, 0);
+            navigationView.setCheckedItem(R.id.nav_list);
+        }
         setUpReceiver();
+        buildGoogleApiClient();
     }
 
     private void setUpReceiver(){
@@ -89,7 +125,7 @@ public class MainActivity extends AppCompatActivity
 
         manager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
 
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
 
         consultPreferences();
     }
@@ -146,7 +182,18 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_map) {
             // Handle the map action
-            FragmentTransition.to(MyMapFragment.newInstance(), this, true);
+            MyMapFragment toFragment = MyMapFragment.newInstance();
+            if(mLastLocation!=null) {
+                Bundle args = new Bundle();
+                args.putDouble("lat", mLastLocation.getLatitude());
+                args.putDouble("lng", mLastLocation.getLongitude());
+                toFragment.setArguments(args);
+            }
+            FragmentTransition.to(toFragment, this, true);
+
+
+
+
         } else if (id == R.id.nav_list) {
             FragmentTransition.to(EventsListFragment.newInstance(), this, true);
            /* FragmentManager fm = getFragmentManager();
@@ -157,7 +204,11 @@ public class MainActivity extends AppCompatActivity
             }*/
 
         } else if (id == R.id.nav_refresh) {
-            startService(new Intent(this, SyncService.class));
+                Intent si = new Intent(this, SyncService.class);
+                si.putExtra("location", mLastLocation);
+                startService(si);
+
+
         } else if (id == R.id.nav_settings) {
             Intent preference = new Intent(MainActivity.this,MyPreferenceActivity.class);
             startActivity(preference);
@@ -206,6 +257,8 @@ public class MainActivity extends AppCompatActivity
         filter.addAction(SYNC_DATA);
 
         registerReceiver(sync, filter);
+        mGoogleApiClient.connect();
+
     }
     @Override
     protected void onPause() {
@@ -220,6 +273,77 @@ public class MainActivity extends AppCompatActivity
 
         super.onPause();
 
+        mGoogleApiClient.disconnect();
     }
 
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        Toast.makeText(this, "onConnected()", Toast.LENGTH_SHORT).show();
+        mLocationRequest = LocationRequest.create();
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        mLocationRequest.setInterval(60000); // Update location every second 10000
+        mLocationRequest.setFastestInterval(60000);
+        //mLocationRequest.setSmallestDisplacement(15);
+        try{
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        } catch (SecurityException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "getLocation error", Toast.LENGTH_SHORT).show();
+         }
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        Toast.makeText(this, "onConnectionSuspended()", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        buildGoogleApiClient();
+        Toast.makeText(this, "onConnectionFailed()", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        Toast.makeText(this, "onLocationChanged()", Toast.LENGTH_SHORT).show();
+        Intent si = new Intent(this, SyncService.class);
+        si.putExtra("location", location);
+        startService(si);
+
+    }
+
+    synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+    }
+    private void showLocatonDialog() {
+        if (dialog == null) {
+            dialog = new LocationDialog(this).prepareDialog();
+        } else {
+            if (dialog.isShowing()) {
+                dialog.dismiss();
+            }
+        }
+
+        dialog.show();
+    }
 }

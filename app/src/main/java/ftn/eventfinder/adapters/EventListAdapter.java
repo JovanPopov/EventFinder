@@ -107,4 +107,5 @@ public class EventListAdapter  extends ArrayAdapter {
         return view;
 
     }
+
 }
