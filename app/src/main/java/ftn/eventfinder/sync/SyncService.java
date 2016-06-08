@@ -69,10 +69,10 @@ public class SyncService extends Service {
                     new SyncTask(getApplicationContext()).execute(l);
                     LatLng l1=getLocation(location.getLatitude(), location.getLongitude(),500);
                     new SyncTask(getApplicationContext()).execute(l1);
-                    LatLng l2=getLocation(location.getLatitude(), location.getLongitude(),500);
+                   /* LatLng l2=getLocation(location.getLatitude(), location.getLongitude(),500);
                     new SyncTask(getApplicationContext()).execute(l2);
                     LatLng l3=getLocation(location.getLatitude(), location.getLongitude(),500);
-                    new SyncTask(getApplicationContext()).execute(l3);
+                    new SyncTask(getApplicationContext()).execute(l3);*/
 
 
                 } catch (Exception e) {

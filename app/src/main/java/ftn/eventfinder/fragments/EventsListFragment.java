@@ -35,7 +35,7 @@ import ftn.eventfinder.model.Event;
  */
 public class EventsListFragment extends ListFragment {
 
-    List<Event_db> queryResults= new ArrayList<Event_db>();;
+
     EventListAdapter mAdapter;
 
     public static EventsListFragment newInstance() {
@@ -49,8 +49,7 @@ public class EventsListFragment extends ListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        queryResults=new Select().from(Event_db.class).execute();
-        mAdapter = new EventListAdapter(getActivity(), new Select().from(Event_db.class).execute());
+        mAdapter = new EventListAdapter(getActivity(), new Select().from(Event_db.class).orderBy("eventStarttime ASC").execute());
         setListAdapter(mAdapter);
     }
     @Override
@@ -67,7 +66,8 @@ public class EventsListFragment extends ListFragment {
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
         Log.i("poruka","usao u listener");
-        Event_db event = this.queryResults.get(position);
+        //Event_db event = this.queryResults.get(position);
+        Event_db event = (Event_db) mAdapter.getItem(position);
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.facebook.com/events/"+event.getEventId()));
         startActivity(browserIntent);
 
@@ -80,6 +80,7 @@ public class EventsListFragment extends ListFragment {
         NavigationView navigationView = (NavigationView) getActivity().findViewById(R.id.nav_view);
         navigationView.setCheckedItem(R.id.nav_list);
         //localReceiver
+
         LocalBroadcastManager.getInstance(this.getActivity()).registerReceiver(mReceiver, new IntentFilter("syncResponse"));
     }
 
@@ -87,7 +88,7 @@ public class EventsListFragment extends ListFragment {
         @Override
         public void onReceive(Context context, Intent intent) {
             mAdapter.clear();
-            mAdapter.addAll(new Select().from(Event_db.class).execute());
+            mAdapter.addAll(new Select().from(Event_db.class).orderBy("eventStarttime ASC").execute());
             mAdapter.notifyDataSetChanged();
         }
     };

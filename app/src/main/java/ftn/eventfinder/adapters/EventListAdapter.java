@@ -6,6 +6,7 @@ package ftn.eventfinder.adapters;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,7 @@ import com.squareup.picasso.Picasso;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -32,6 +34,8 @@ public class EventListAdapter  extends ArrayAdapter {
     public EventListAdapter(Context context, List items) {
         super(context, android.R.layout.simple_list_item_1, items);
         this.context = context;
+
+
     }
 
     /**
@@ -87,15 +91,17 @@ public class EventListAdapter  extends ArrayAdapter {
             e.printStackTrace();
         }
         SimpleDateFormat outgoingFormat = new SimpleDateFormat("EEEE, dd MMMM yyyy", java.util.Locale.getDefault());
+        SimpleDateFormat outgoingFormat1 = new SimpleDateFormat("HH:mm", java.util.Locale.getDefault());
 
-        date.setText(outgoingFormat.format(date1));
+        date.setText(outgoingFormat.format(date1) + " at " + outgoingFormat1.format(date1));
 
 
-        Date currentDate=new Date();
-        if(date1.before(currentDate)) {
-            title.setTextColor(Color.RED);
-            //view.setBackgroundColor(Color.CYAN);
-        }
+        Calendar calendar = Calendar.getInstance();
+        Date currentDate = calendar.getTime();
+
+        int value = date1.before(currentDate)?Color.RED:Color.BLACK;
+        title.setTextColor(value);
+
         TextView place = (TextView) view.findViewById(R.id.marker_place);
         place.setText(event.getVenueName());
 

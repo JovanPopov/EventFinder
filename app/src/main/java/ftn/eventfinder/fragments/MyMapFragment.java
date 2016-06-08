@@ -215,7 +215,8 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 	public BroadcastReceiver mReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			String message = intent.getStringExtra("foo");
+
+
 			LatLng currentLocation = new LatLng( intent.getDoubleExtra("lat",0), intent.getDoubleExtra("lng",0));
 			refreshMGoogleMap(currentLocation);
 		}
@@ -252,7 +253,7 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 
 	}
 	public void RefreshMarkers(){
-		List<Event_db> eve=new Select().from(Event_db.class).execute();
+		List<Event_db> eve=new Select().from(Event_db.class).orderBy("eventStarttime ASC").execute();
 
 		for (Event_db e : eve) {
 			LatLng lokacija = new LatLng(e.getVenueLocation().getLatitude(), e.getVenueLocation().getLongitude());
@@ -350,19 +351,6 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 	}
 
 	private void createMapFragmentAndInflate() {
-
-
-		// Get LocationManager object from System Service LOCATION_SERVICE
-
-
-
-		//Toast.makeText(getActivity(), "Best Provider " + bestProvider, Toast.LENGTH_SHORT).show();
-
-		//locationManager.requestLocationUpdates(bestProvider, minTime, minDistance, this);
-
-
-
-
 		mMapFragment = SupportMapFragment.newInstance();
 		FragmentTransaction transaction = getChildFragmentManager()
 				.beginTransaction();
@@ -615,12 +603,15 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 				e.printStackTrace();
 			}
 			SimpleDateFormat outgoingFormat = new SimpleDateFormat("EEEE, dd MMMM yyyy", java.util.Locale.getDefault());
+			SimpleDateFormat outgoingFormat1 = new SimpleDateFormat("HH:mm", java.util.Locale.getDefault());
 
-			date.setText(outgoingFormat.format(date1));
+			date.setText(outgoingFormat.format(date1) + " at " + outgoingFormat1.format(date1));
+
 			Date currentDate=new Date();
-			if(date1.before(currentDate)) {
-				title.setTextColor(Color.RED);
-			}
+			int value = date1.before(currentDate)?Color.RED:Color.BLACK;
+			title.setTextColor(value);
+
+
 			TextView place = (TextView) view.findViewById(R.id.marker_place);
 			place.setText(event.getVenueName());
 

@@ -36,6 +36,7 @@ import com.google.android.gms.location.LocationServices;
 import java.util.List;
 
 import ftn.eventfinder.dialogs.LocationDialog;
+import ftn.eventfinder.dialogs.SortDialog;
 import ftn.eventfinder.entities.EventStats_db;
 import ftn.eventfinder.entities.Event_db;
 import ftn.eventfinder.entities.VenueLocation_db;
@@ -134,10 +135,10 @@ public class MainActivity extends AppCompatActivity
         synctime = sharedPreferences.getString(getString(R.string.pref_sync_list), "1");// pola minuta
         allowSync = sharedPreferences.getBoolean(getString(R.string.pref_sync), false);
 
-        lookupRadius = sharedPreferences.getString(getString(R.string.pref_radius), "1");//1km
+        //lookupRadius = sharedPreferences.getString(getString(R.string.pref_radius), "1");//1km
 
-        allowCommentedNotif = sharedPreferences.getBoolean(getString(R.string.notif_on_my_comment_key), false);
-        allowReviewNotif = sharedPreferences.getBoolean(getString(R.string.notif_on_my_review_key), false);
+        //allowCommentedNotif = sharedPreferences.getBoolean(getString(R.string.notif_on_my_comment_key), false);
+        //allowReviewNotif = sharedPreferences.getBoolean(getString(R.string.notif_on_my_review_key), false);
 
         //Toast.makeText(MainActivity.this, allowSync + " " + lookupRadius + " " + synctime, Toast.LENGTH_SHORT).show();
     }
@@ -168,6 +169,19 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            return true;
+        }
+
+        if (id == R.id.action_sort) {
+            if (dialog == null) {
+                dialog = new SortDialog(this).prepareDialog();
+            } else {
+                if (dialog.isShowing()) {
+                    dialog.dismiss();
+                }
+            }
+
+            dialog.show();
             return true;
         }
 

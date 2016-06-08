@@ -77,6 +77,13 @@
         <item>3</item>
     </string-array>
 
+
+    <string-array name="pref_sort_values">
+        <item>Start time</item>
+        <item>Name</item>
+    </string-array>
+
+
     <string name="sync_preferences">sync_preferences</string>
     <string name="date_last_synchronized">date_last_synchronized</string>
 </resources>

@@ -278,14 +278,14 @@ public class SyncTask extends AsyncTask<LatLng, Void, String> {
 
    // context.sendBroadcast(ints);
 
-        Toast toast = new Toast(context);
+        /*Toast toast = new Toast(context);
         ImageView view = new ImageView(context);
         view.setImageResource(R.drawable.ic_action_refresh);
         toast.setView(view);
-        toast.show();
+        toast.show();*/
 
 
-        //Toast.makeText(context, "New Entites: " + String.valueOf(newEntites), Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, "New Entites: " + String.valueOf(newEntites), Toast.LENGTH_SHORT).show();
         Log.i("poruka", result);
 
 	}

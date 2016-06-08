@@ -50,9 +50,8 @@ public class ClearDbService extends IntentService {
 
             int hours = 6;
             Calendar calendar = Calendar.getInstance();
-            calendar.set( Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY)+ hours );
+            calendar.set( Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY) - hours );
             Date currentDate = calendar.getTime();
-
 
             for (Event_db e : queryResults) {
                 try {
@@ -62,12 +61,13 @@ public class ClearDbService extends IntentService {
                 }
 
                 if(eventDate.before(currentDate)){
+                    Log.i("clear", "entity deleted" + String.valueOf(eventDate) + e.getEventName());
 
                     e.getVenueLocation().delete();
                     e.getEventStats().delete();
                     e.delete();
 
-                    Log.i("clear", "entity deleted");
+
                     deletes++;
                 }
 
