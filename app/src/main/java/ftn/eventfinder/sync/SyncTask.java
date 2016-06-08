@@ -270,7 +270,7 @@ public class SyncTask extends AsyncTask<LatLng, Void, String> {
 	protected void onPostExecute(String result) {
 
         Intent intent = new Intent("syncResponse");
-        intent.putExtra("foo", "sync compleated, repopulate map");
+        intent.putExtra("foo", "sync compleated");
         intent.putExtra("lat",loc.latitude);
         intent.putExtra("lng",loc.longitude);
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);

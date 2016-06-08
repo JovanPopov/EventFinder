@@ -20,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -379,6 +380,7 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 		if(getArguments()!=null) {
 			GlobalLocVar = new LatLng(args.getDouble("lat"), args.getDouble("lng"));
 		}
+
 		return view;
 
 	}
