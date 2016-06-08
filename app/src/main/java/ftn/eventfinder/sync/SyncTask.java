@@ -9,6 +9,8 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.activeandroid.ActiveAndroid;
@@ -26,6 +28,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 import ftn.eventfinder.MainActivity;
+import ftn.eventfinder.R;
 import ftn.eventfinder.RetrofitInt.EventsInterface;
 import ftn.eventfinder.entities.EventStats_db;
 import ftn.eventfinder.entities.Event_db;
@@ -275,8 +278,14 @@ public class SyncTask extends AsyncTask<LatLng, Void, String> {
 
    // context.sendBroadcast(ints);
 
-        //Toast.makeText(context, result, Toast.LENGTH_SHORT).show();
-        Toast.makeText(context, "New Entites: " + String.valueOf(newEntites), Toast.LENGTH_SHORT).show();
+        Toast toast = new Toast(context);
+        ImageView view = new ImageView(context);
+        view.setImageResource(R.drawable.ic_action_refresh);
+        toast.setView(view);
+        toast.show();
+
+
+        //Toast.makeText(context, "New Entites: " + String.valueOf(newEntites), Toast.LENGTH_SHORT).show();
         Log.i("poruka", result);
 
 	}

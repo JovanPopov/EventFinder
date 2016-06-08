@@ -87,10 +87,10 @@ public class MainActivity extends AppCompatActivity
        // Toast.makeText(MainActivity.this,String.valueOf(savedInstanceState.get("deleted")) , Toast.LENGTH_SHORT).show();
 
         //floatingACtionButtons
-        fabn = (FloatingActionButton) findViewById(R.id.fab_next);
+        /*fabn = (FloatingActionButton) findViewById(R.id.fab_next);
         fabp = (FloatingActionButton) findViewById(R.id.fab_previous);
         fabn.hide();
-        fabp.hide();
+        fabp.hide();*/
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -231,6 +231,8 @@ public class MainActivity extends AppCompatActivity
                     "VenueLocation size: " + String.valueOf(eve2)+ "\n" +
                     "EventStats size: " + String.valueOf(eve1)
                     , Toast.LENGTH_LONG).show();
+
+
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

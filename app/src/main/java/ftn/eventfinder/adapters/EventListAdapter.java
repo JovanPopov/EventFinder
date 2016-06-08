@@ -5,6 +5,7 @@ package ftn.eventfinder.adapters;
  */
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,6 +69,11 @@ public class EventListAdapter  extends ArrayAdapter {
         }
 
 
+
+
+
+
+
         TextView title = (TextView) view.findViewById(R.id.marker_name);
         title.setText(event.getEventName());
 
@@ -84,6 +90,12 @@ public class EventListAdapter  extends ArrayAdapter {
 
         date.setText(outgoingFormat.format(date1));
 
+
+        Date currentDate=new Date();
+        if(date1.before(currentDate)) {
+            title.setTextColor(Color.RED);
+            //view.setBackgroundColor(Color.CYAN);
+        }
         TextView place = (TextView) view.findViewById(R.id.marker_place);
         place.setText(event.getVenueName());
 

@@ -25,33 +25,35 @@
 
    <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_next"
+       android:visibility="gone"
         app:fabSize="mini"
+        app:backgroundTint="@color/wallet_bright_foreground_holo_dark"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginLeft="100dp"
-        android:layout_marginTop="30dp"
-        android:src="@android:drawable/arrow_up_float" />
+        android:layout_marginLeft="70dp"
+        android:src="@drawable/arrowright" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_previous"
+        android:visibility="gone"
         app:fabSize="mini"
+        app:backgroundTint="@color/wallet_bright_foreground_holo_dark"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginRight="100dp"
-        android:layout_marginTop="30dp"
-        android:src="@android:drawable/arrow_down_float" />
+        android:layout_marginRight="70dp"
+        android:src="@drawable/arrowleft" />
 
 
-<!--    <android.support.design.widget.FloatingActionButton
+  <!--  <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_next"
         app:fabSize="normal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:src="@android:drawable/arrow_up_float" />
+        android:src="@drawable/arrowright" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_previous"
@@ -60,6 +62,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|start"
         android:layout_margin="16dp"
-        android:src="@android:drawable/arrow_down_float" />-->
+        android:src="@drawable/arrowleft" />-->
 
 </android.support.design.widget.CoordinatorLayout>

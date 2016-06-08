@@ -87,6 +87,7 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 	Marker previous=null;
 	private FloatingActionButton fabn;
 	private FloatingActionButton fabp;
+	private Marker currentMarker;
 
 	public static MyMapFragment newInstance() {
 
@@ -127,39 +128,41 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 			}
 		});*/
 
-		fabn = (FloatingActionButton) getActivity().findViewById(R.id.fab_next);
-		fabn.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				//Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-				if (!markersInLocation.isEmpty()) {
-					if (markersPosition == markersInLocation.size() - 1) {
-						markersPosition = 0;
-					} else {
-						markersPosition++;
+		fabn=getNext();
+		if(fabn!=null) {
+			fabn.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					//Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+					if (!markersInLocation.isEmpty()) {
+						if (markersPosition == markersInLocation.size() - 1) {
+							markersPosition = 0;
+						} else {
+							markersPosition++;
+						}
+						markersInLocation.get(markersPosition).showInfoWindow();
 					}
-					markersInLocation.get(markersPosition).showInfoWindow();
 				}
-			}
-		});
-
-		fabp = (FloatingActionButton) getActivity().findViewById(R.id.fab_previous);
-		fabp.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				//Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-				if (!markersInLocation.isEmpty()) {
-					if (markersPosition == 0) {
-						markersPosition = markersInLocation.size() - 1;
-					} else {
-						markersPosition--;
+			});
+		}
+		fabp=getPrevious();
+		if(fabn!=null) {
+			fabp.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					//Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+					if (!markersInLocation.isEmpty()) {
+						if (markersPosition == 0) {
+							markersPosition = markersInLocation.size() - 1;
+						} else {
+							markersPosition--;
+						}
+						markersInLocation.get(markersPosition).showInfoWindow();
 					}
-					markersInLocation.get(markersPosition).showInfoWindow();
 				}
-			}
-		});
+			});
 
-
+		}
 
 	}
 
@@ -386,8 +389,12 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 		super.onPause();
 
 		LocalBroadcastManager.getInstance(this.getActivity()).unregisterReceiver(mReceiver);
-		fabn.hide();
-		fabp.hide();
+		fabn = getNext();
+		fabp = getPrevious();
+		if(fabn!=null)
+			fabn.hide();
+		if(fabp!=null)
+			fabp.hide();
 
 
 	}
@@ -426,43 +433,67 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 			@Override
 			public boolean onMarkerClick(Marker marker) {
 				if(markers.containsKey(marker)) {
+				currentMarker=marker;
 
-					if(previous!=marker) {
 						CameraPosition cameraPosition = new CameraPosition.Builder()
-								.target(marker.getPosition()).zoom(map.getCameraPosition().zoom).build();
+								.target(currentMarker.getPosition()).zoom(map.getCameraPosition().zoom).build();
 
 						map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
 						//map.moveCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
-					}
+
+					map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), 600, new GoogleMap.CancelableCallback() {
+
+						@Override
+						public void onFinish() {
+
+							int numberOfEvents=0;
+							List<Event_db> queryResults=new Select().from(Event_db.class).execute();
+							Event_db e=markers.get(currentMarker);
+							markersInLocation.clear();
+							for (Event_db event : queryResults) {
+								if(event.getVenueId().equals(e.getVenueId())) {
+									numberOfEvents++;
+									markersInLocation.add(markersInv.get(event));
+								}
+
+							}
+
+							if(numberOfEvents>1) {
+								//Toast.makeText(getActivity(), "Multiple events on this location, tap the marker to cycle through them", Toast.LENGTH_LONG).show();
+								markersPosition=0;
+								fabn = getNext();
+								fabp = getPrevious();
+								if(fabn!=null)
+									fabn.show();
+								if(fabp!=null)
+									fabp.show();
+							}else{
+
+							}
+
+						}
+
+						@Override
+						public void onCancel() {
+
+
+						}
+					});
+
 					marker.showInfoWindow();
 					//map.moveCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
 					//Intent intent = new Intent(getActivity(), EventDetailView.class);
 					//startActivity(intent);
 					//FragmentTransition.to(MyFragment.newInstance(), getActivity(), true);
-					int numberOfEvents=0;
-					List<Event_db> queryResults=new Select().from(Event_db.class).execute();
-					Event_db e=markers.get(marker);
-					markersInLocation.clear();
-					for (Event_db event : queryResults) {
-						if(event.getVenueId().equals(e.getVenueId())) {
-							numberOfEvents++;
-							markersInLocation.add(markersInv.get(event));
-						}
 
-					}
 
-					if(numberOfEvents>1) {
-						//Toast.makeText(getActivity(), "Multiple events on this location, tap the marker to cycle through them", Toast.LENGTH_LONG).show();
-						markersPosition=0;
-						fabn.show();
-						fabp.show();
-					}else{
+					fabn = getNext();
+					fabp = getPrevious();
+					if(fabn!=null)
 						fabn.hide();
+					if(fabp!=null)
 						fabp.hide();
-					}
-
-					previous=marker;
 				}
 				return true;
 			}
@@ -486,8 +517,12 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 		map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
 			@Override
 			public void onMapClick(LatLng latLng) {
-				fabn.hide();
-				fabp.hide();
+				fabn = getNext();
+				fabp = getPrevious();
+				if(fabn!=null)
+					fabn.hide();
+				if(fabp!=null)
+					fabp.hide();
 			}
 		});
 
@@ -495,6 +530,12 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 		map.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
 			@Override
 			public void onMapLongClick(LatLng latLng) {
+				fabn = getNext();
+				fabp = getPrevious();
+				if(fabn!=null)
+					fabn.hide();
+				if(fabp!=null)
+					fabp.hide();
 				Location location= new Location("");
 				location.setLatitude(latLng.latitude);
 				location.setLongitude(latLng.longitude);
@@ -503,6 +544,20 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 				getActivity().startService(si);
 			}
 		});
+
+		map.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+			@Override
+			public void onCameraChange(CameraPosition cameraPosition) {
+				fabn = getNext();
+				fabp = getPrevious();
+				if(fabn!=null)
+					fabn.hide();
+				if(fabp!=null)
+					fabp.hide();
+			}
+		});
+
+
 		map.clear();
 		markers.clear();
 
@@ -560,7 +615,10 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 			SimpleDateFormat outgoingFormat = new SimpleDateFormat("EEEE, dd MMMM yyyy", java.util.Locale.getDefault());
 
 			date.setText(outgoingFormat.format(date1));
-
+			Date currentDate=new Date();
+			if(date1.before(currentDate)) {
+				title.setTextColor(Color.RED);
+			}
 			TextView place = (TextView) view.findViewById(R.id.marker_place);
 			place.setText(event.getVenueName());
 
@@ -611,6 +669,13 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 	}
 
 
-	
+	public FloatingActionButton getNext() {
+		return (FloatingActionButton) getActivity().findViewById(R.id.fab_next);
+	}
+
+	public FloatingActionButton getPrevious() {
+		return (FloatingActionButton) getActivity().findViewById(R.id.fab_previous);
+	}
+
 
 }
