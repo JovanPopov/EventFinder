@@ -96,7 +96,7 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 	private LatLng mapPosition;
 	private float mZoom;
 	private boolean firstZoomFromMain=false;
-
+	private boolean cluster;
 
 	public static MyMapFragment newInstance() {
 
@@ -236,6 +236,7 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 
 	@Override
 	public void onResume() {
+		Log.i("save", "onResume");
 		// TODO Auto-generated method stub
 		super.onResume();
 		// Toast.makeText(getActivity(), "onResume()",
@@ -267,8 +268,8 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 
 		//localReceiver
 		LocalBroadcastManager.getInstance(this.getActivity()).registerReceiver(mReceiver, new IntentFilter("syncResponse"));
-		//fabn.hide();
-		//fabp.hide();
+		Log.i("save", "cluster: " + String.valueOf(cluster));
+
 	}
 
 
@@ -317,6 +318,7 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 		}
 	}
 	public void refreshMGoogleMap(LatLng loc){
+		Log.i("save", "refreshMGoogleMap()");
 		if(map!=null) {
 			boolean helper=false;
 			List<Event_db> eve=new Select().from(Event_db.class).orderBy("eventStarttime ASC").execute();
@@ -373,8 +375,48 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 					CameraPosition cameraPosition = new CameraPosition.Builder()
 							.target(currentMarker.getPosition()).zoom(mZoom).build();
 
-					map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+					//map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+					map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), 10, new GoogleMap.CancelableCallback() {
+
+						@Override
+						public void onFinish() {
+							if(cluster){
+								fabn.show();
+								fabp.show();
+							}
+						}
+
+						@Override
+						public void onCancel() {
+
+
+						}
+					});
+
+
+
+
+
+
 					currentMarker.showInfoWindow();
+					if(cluster) {
+
+						//TODO query
+						List<Event_db> queryResults=new Select().from(Event_db.class).execute();
+						Event_db e=markers.get(currentMarker);
+						Log.i("save", "reinitialize cluster");
+						List<Event_db> cluster_db=new Select().from(Event_db.class).where("venueId = ?",e.getVenueId()).execute();
+						markersInLocation.clear();
+						for (Event_db event : cluster_db) {
+								markersInLocation.add(markersInv.get(event));
+
+
+						}
+
+						Log.i("save", String.valueOf(markersInLocation.size()) );
+						Log.i("save", String.valueOf(markersPosition) );
+
+					}
 
 			}else if(mapPosition!=null){
 					CameraPosition cameraPosition = new CameraPosition.Builder()
@@ -397,6 +439,7 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 					.fillColor(Color.TRANSPARENT));*/
 
 			//RefreshMarkers();
+
 		}
 
 	}
@@ -618,6 +661,7 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 							}
 
 							if(numberOfEvents>1) {
+								cluster=true;
 								//Toast.makeText(getActivity(), "Multiple events on this location, tap the marker to cycle through them", Toast.LENGTH_LONG).show();
 								markersPosition=0;
 								fabn = getNext();
@@ -627,7 +671,7 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 								if(fabp!=null)
 									fabp.show();
 							}else{
-
+								cluster=false;
 							}
 
 						}
@@ -719,12 +763,12 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 			}
 		});
 
-map.setOnInfoWindowCloseListener(new GoogleMap.OnInfoWindowCloseListener() {
-	@Override
-	public void onInfoWindowClose(Marker marker) {
+		map.setOnInfoWindowCloseListener(new GoogleMap.OnInfoWindowCloseListener() {
+			@Override
+			public void onInfoWindowClose(Marker marker) {
 
-	}
-});
+			}
+		});
 		map.clear();
 		markers.clear();
 
