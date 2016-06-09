@@ -155,48 +155,7 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 			}
 		});*/
 
-		fabn=getNext();
-		if(fabn!=null) {
-			fabn.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View view) {
-					//Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-					if (!markersInLocation.isEmpty()) {
-						if (markersPosition == markersInLocation.size() - 1) {
-							markersPosition = 0;
-						} else {
-							markersPosition++;
-						}
-						Marker mar = markersInLocation.get(markersPosition);
-						mar.showInfoWindow();
-						windowOpen=true;
-						lastEventId=markers.get(mar).getEventId();
-					}
-				}
-			});
-		}
-		fabp=getPrevious();
-		if(fabn!=null) {
-			fabp.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View view) {
-					//Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-					if (!markersInLocation.isEmpty()) {
-						if (markersPosition == 0) {
-							markersPosition = markersInLocation.size() - 1;
-						} else {
-							markersPosition--;
-						}
-						Marker mar = markersInLocation.get(markersPosition);
 
-						mar.showInfoWindow();
-						windowOpen=true;
-						lastEventId=markers.get(mar).getEventId();
-					}
-				}
-			});
-
-		}
 
 	}
 
@@ -567,7 +526,48 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 	public View onCreateView(LayoutInflater inflater, ViewGroup vg, Bundle data) {
 
 		View view = inflater.inflate(R.layout.map_layout, vg, false);
+		fabn=(FloatingActionButton) view.findViewById(R.id.fab_next);
+		//if(fabn!=null) {
+			fabn.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					Log.i("save", "fab next");
+					if (!markersInLocation.isEmpty()) {
+						if (markersPosition == markersInLocation.size() - 1) {
+							markersPosition = 0;
+						} else {
+							markersPosition++;
+						}
+						Marker mar = markersInLocation.get(markersPosition);
+						mar.showInfoWindow();
+						windowOpen=true;
+						lastEventId=markers.get(mar).getEventId();
+					}
+				}
+			});
+		//}
+		fabp=(FloatingActionButton) view.findViewById(R.id.fab_previous);
+		//if(fabn!=null) {
+			fabp.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					Log.i("save", "fab previous");
+					if (!markersInLocation.isEmpty()) {
+						if (markersPosition == 0) {
+							markersPosition = markersInLocation.size() - 1;
+						} else {
+							markersPosition--;
+						}
+						Marker mar = markersInLocation.get(markersPosition);
 
+						mar.showInfoWindow();
+						windowOpen=true;
+						lastEventId=markers.get(mar).getEventId();
+					}
+				}
+			});
+
+		//}
 		Bundle args = getArguments();
 		if(getArguments()!=null) {
 			GlobalLocVar = new LatLng(args.getDouble("lat"), args.getDouble("lng"));
@@ -583,11 +583,8 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 		super.onPause();
 
 		LocalBroadcastManager.getInstance(this.getActivity()).unregisterReceiver(mReceiver);
-		fabn = getNext();
-		fabp = getPrevious();
-		if(fabn!=null)
+
 			fabn.hide();
-		if(fabp!=null)
 			fabp.hide();
 		if(map!=null) {
 			mapPosition = map.getCameraPosition().target;
@@ -664,11 +661,8 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 								cluster=true;
 								//Toast.makeText(getActivity(), "Multiple events on this location, tap the marker to cycle through them", Toast.LENGTH_LONG).show();
 								markersPosition=0;
-								fabn = getNext();
-								fabp = getPrevious();
-								if(fabn!=null)
+
 									fabn.show();
-								if(fabp!=null)
 									fabp.show();
 							}else{
 								cluster=false;
@@ -690,11 +684,7 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 					//FragmentTransition.to(MyFragment.newInstance(), getActivity(), true);
 
 
-					fabn = getNext();
-					fabp = getPrevious();
-					if(fabn!=null)
 						fabn.hide();
-					if(fabp!=null)
 						fabp.hide();
 				}
 				return true;
@@ -720,11 +710,7 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 			@Override
 			public void onMapClick(LatLng latLng) {
 
-				fabn = getNext();
-				fabp = getPrevious();
-				if(fabn!=null)
 					fabn.hide();
-				if(fabp!=null)
 					fabp.hide();
 				lastEventId="";
 				windowOpen=false;
@@ -736,11 +722,8 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 		map.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
 			@Override
 			public void onMapLongClick(LatLng latLng) {
-				fabn = getNext();
-				fabp = getPrevious();
-				if(fabn!=null)
+
 					fabn.hide();
-				if(fabp!=null)
 					fabp.hide();
 				Location location= new Location("");
 				location.setLatitude(latLng.latitude);
@@ -754,11 +737,8 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 		map.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
 			@Override
 			public void onCameraChange(CameraPosition cameraPosition) {
-				fabn = getNext();
-				fabp = getPrevious();
-				if(fabn!=null)
+
 					fabn.hide();
-				if(fabp!=null)
 					fabp.hide();
 			}
 		});
@@ -881,15 +861,5 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 			}
 		}
 	}
-
-
-	public FloatingActionButton getNext() {
-		return (FloatingActionButton) getActivity().findViewById(R.id.fab_next);
-	}
-
-	public FloatingActionButton getPrevious() {
-		return (FloatingActionButton) getActivity().findViewById(R.id.fab_previous);
-	}
-
 
 }

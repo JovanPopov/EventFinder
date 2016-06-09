@@ -1,13 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical"
-    android:id="@+id/map_container">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <ListView
-        android:id="@id/android:list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+    <!-- Lots of fancy layout -->
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_next"
+        android:visibility="gone"
+        app:fabSize="mini"
+        app:backgroundTint="@color/wallet_bright_foreground_holo_dark"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginLeft="70dp"
+        android:src="@drawable/arrowright" />
 
-</LinearLayout>
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_previous"
+        android:visibility="gone"
+        app:fabSize="mini"
+        app:backgroundTint="@color/wallet_bright_foreground_holo_dark"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginRight="70dp"
+        android:src="@drawable/arrowleft" />
+
+
+    <RelativeLayout
+        android:id="@+id/map_container"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:padding="0px" >
+
+</RelativeLayout>
+</RelativeLayout>

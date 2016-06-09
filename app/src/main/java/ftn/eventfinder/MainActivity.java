@@ -77,8 +77,6 @@ public class MainActivity extends AppCompatActivity
     private LocationRequest mLocationRequest;
 
 
-    FloatingActionButton fabn;
-    FloatingActionButton fabp;
 
 
     @Override
@@ -90,11 +88,7 @@ public class MainActivity extends AppCompatActivity
 
        // Toast.makeText(MainActivity.this,String.valueOf(savedInstanceState.get("deleted")) , Toast.LENGTH_SHORT).show();
         Log.i("main", "onCreate()");
-        //floatingACtionButtons
-        /*fabn = (FloatingActionButton) findViewById(R.id.fab_next);
-        fabp = (FloatingActionButton) findViewById(R.id.fab_previous);
-        fabn.hide();
-        fabp.hide();*/
+
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(

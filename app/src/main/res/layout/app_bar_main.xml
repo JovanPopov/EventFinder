@@ -23,7 +23,7 @@
 
     <include layout="@layout/content_main" />
 
-   <android.support.design.widget.FloatingActionButton
+  <!-- <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_next"
        android:visibility="gone"
         app:fabSize="mini"
@@ -43,7 +43,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginRight="70dp"
-        android:src="@drawable/arrowleft" />
+        android:src="@drawable/arrowleft" />-->
 
 
   <!--  <android.support.design.widget.FloatingActionButton
