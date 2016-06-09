@@ -8,11 +8,14 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -86,7 +89,7 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
        // Toast.makeText(MainActivity.this,String.valueOf(savedInstanceState.get("deleted")) , Toast.LENGTH_SHORT).show();
-
+        Log.i("main", "onCreate()");
         //floatingACtionButtons
         /*fabn = (FloatingActionButton) findViewById(R.id.fab_next);
         fabp = (FloatingActionButton) findViewById(R.id.fab_previous);
@@ -103,18 +106,56 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String home = sharedPreferences.getString("pref_home_list", "debug");
+        if(savedInstanceState==null) {
+            Log.i("main", "saved state null");
+            //defaultView
 
-        //defaultView
-        String home = sharedPreferences.getString("pref_home_list", "1");
-        if(home.equals("1")) {
-            navigationView.getMenu().performIdentifierAction(R.id.nav_map, 0);
-            navigationView.setCheckedItem(R.id.nav_map);
-        }else if (home.equals("2")){
-            navigationView.getMenu().performIdentifierAction(R.id.nav_list, 0);
-            navigationView.setCheckedItem(R.id.nav_list);
+            if (home.equals("map")) {
+                navigationView.getMenu().performIdentifierAction(R.id.nav_map, 0);
+                navigationView.setCheckedItem(R.id.nav_map);
+            } else if (home.equals("list")) {
+                navigationView.getMenu().performIdentifierAction(R.id.nav_list, 0);
+                navigationView.setCheckedItem(R.id.nav_list);
+            }
+
+
+        }else{
+            Log.i("main", "Saved state not null");
+            String fragmentTag=home;
+            if(savedInstanceState.getBoolean("map")){
+                fragmentTag="map";
+            }else if(savedInstanceState.getBoolean("list")){
+                fragmentTag="list";
+            }
+            Log.i("main", fragmentTag);
+            FragmentManager fm = this.getSupportFragmentManager();
+            Fragment existingFragment = fm.findFragmentByTag(fragmentTag);
+            FragmentTransition.to(existingFragment, this, fragmentTag);
         }
+
         setUpReceiver();
         buildGoogleApiClient();
+    }
+
+
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.i("main", "onSaveInstanceState()");
+        FragmentManager fm = this.getSupportFragmentManager();
+        MyMapFragment myFragment = (MyMapFragment) fm.findFragmentByTag("map");
+        if (myFragment != null && myFragment.isVisible()) {
+            outState.putBoolean("map", true);
+            Log.i("main", "map saved )");
+        }
+
+        EventsListFragment myFragment1 = (EventsListFragment)fm.findFragmentByTag("list");
+        if (myFragment1 != null && myFragment1.isVisible()) {
+            outState.putBoolean("list", true);
+            Log.i("main", "list saved ");
+        }
     }
 
     private void setUpReceiver(){
@@ -196,20 +237,32 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_map) {
             // Handle the map action
-            MyMapFragment toFragment = MyMapFragment.newInstance();
-            if(mLastLocation!=null) {
-                Bundle args = new Bundle();
-                args.putDouble("lat", mLastLocation.getLatitude());
-                args.putDouble("lng", mLastLocation.getLongitude());
-                toFragment.setArguments(args);
+            FragmentManager fm = this.getSupportFragmentManager();
+            Fragment existingFragment = fm.findFragmentByTag("map");
+            if(existingFragment==null) {
+                MyMapFragment toFragment = MyMapFragment.newInstance();
+                if (mLastLocation != null) {
+                    Bundle args = new Bundle();
+                    args.putDouble("lat", mLastLocation.getLatitude());
+                    args.putDouble("lng", mLastLocation.getLongitude());
+                    toFragment.setArguments(args);
+                }
+                FragmentTransition.to(toFragment, this, "map");
+            }else{
+                FragmentTransition.to(existingFragment, this, "map");
             }
-            FragmentTransition.to(toFragment, this, true);
 
 
 
 
         } else if (id == R.id.nav_list) {
-            FragmentTransition.to(EventsListFragment.newInstance(), this, true);
+            FragmentManager fm = this.getSupportFragmentManager();
+            Fragment existingFragment = fm.findFragmentByTag("list");
+            if(existingFragment==null) {
+                FragmentTransition.to(EventsListFragment.newInstance(), this, "list");
+            }else{
+                FragmentTransition.to(existingFragment, this, "list");
+            }
            /* FragmentManager fm = getFragmentManager();
 
             if (fm.findFragmentById(android.R.id.content) == null) {
@@ -288,8 +341,7 @@ public class MainActivity extends AppCompatActivity
         }
 
         super.onPause();
-
-        mGoogleApiClient.disconnect();
+         mGoogleApiClient.disconnect();
     }
 
     @Override
@@ -297,8 +349,8 @@ public class MainActivity extends AppCompatActivity
         Toast.makeText(this, "onConnected()", Toast.LENGTH_SHORT).show();
         mLocationRequest = LocationRequest.create();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-        mLocationRequest.setInterval(60000); // Update location every second 10000
-        mLocationRequest.setFastestInterval(60000);
+        mLocationRequest.setInterval(80000); // Update location every second 10000
+        mLocationRequest.setFastestInterval(80000);
         //mLocationRequest.setSmallestDisplacement(15);
         try{
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
@@ -331,6 +383,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     synchronized void buildGoogleApiClient() {
+        Log.i("main", "Build GoogleApiclient");
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)

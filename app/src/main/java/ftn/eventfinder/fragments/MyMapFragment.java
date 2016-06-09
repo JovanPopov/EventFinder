@@ -81,14 +81,22 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 	private Marker home;
 	private HashMap<Marker, Event_db> markers;
 	private HashMap<Event_db, Marker> markersInv;
-	LatLng GlobalLocVar= null;
+	LatLng GlobalLocVar;
 	private ArrayList<Marker> markersInLocation = new ArrayList<Marker>();
 	private int markersPosition=0;
 	boolean zoom=false;
 	Marker previous=null;
 	private FloatingActionButton fabn;
 	private FloatingActionButton fabp;
+	private Marker currentMarker1;
 	private Marker currentMarker;
+	String lastEventId;
+	private boolean windowOpen=false;
+	// za cuvanje pozicije
+	private LatLng mapPosition;
+	private float mZoom;
+	private boolean firstZoomFromMain=false;
+
 
 	public static MyMapFragment newInstance() {
 
@@ -105,11 +113,29 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 		super.onCreate(savedInstanceState);
 
 		createMapFragmentAndInflate();
-
+		Log.i("save", "onCreate()");
 		if (savedInstanceState != null) {
 			tagFilter = savedInstanceState.getStringArrayList(TAG_FILTER);
+			mMapFragment.setRetainInstance(true);
+			mZoom=savedInstanceState.getFloat("zoom");
+			lastEventId= savedInstanceState.getString("eventId");
+			if (lastEventId!=null) {
+				windowOpen=true;
+				Log.i("save", "last Id loaded is " + lastEventId);
+			}else{
+
+				mapPosition=new LatLng(savedInstanceState.getDouble("lat"),savedInstanceState.getDouble("lng"));
+				Log.i("save", "Map position loaded is" + String.valueOf(savedInstanceState.getDouble("lat")) + String.valueOf(savedInstanceState.getDouble("lng")));
+				//Log.i("save", "Map position loaded is" + String.valueOf(mapPosition));
+				double lat= 0.0;
+				double lng= 0.0;
+				if(savedInstanceState.getDouble("lat")==lat && savedInstanceState.getDouble("lat")==lng) firstZoomFromMain=true;
+			}
+
 		} else {
 			tagFilter = new ArrayList<String>();
+			Log.i("save", " first time starting savedInstanceState is null");
+			firstZoomFromMain=true;
 		}
 
 /*		Button button = new Button(this.getActivity());
@@ -141,7 +167,10 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 						} else {
 							markersPosition++;
 						}
-						markersInLocation.get(markersPosition).showInfoWindow();
+						Marker mar = markersInLocation.get(markersPosition);
+						mar.showInfoWindow();
+						windowOpen=true;
+						lastEventId=markers.get(mar).getEventId();
 					}
 				}
 			});
@@ -158,7 +187,11 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 						} else {
 							markersPosition--;
 						}
-						markersInLocation.get(markersPosition).showInfoWindow();
+						Marker mar = markersInLocation.get(markersPosition);
+
+						mar.showInfoWindow();
+						windowOpen=true;
+						lastEventId=markers.get(mar).getEventId();
 					}
 				}
 			});
@@ -172,6 +205,33 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putStringArrayList(TAG_FILTER, tagFilter);
+		Log.i("save", "onSaveInstanceState()");
+
+		Log.i("save", "windows is open? " + windowOpen);
+		MyMapFragment myFragment = (MyMapFragment) getFragmentManager().findFragmentByTag("map");
+		if (myFragment != null && myFragment.isVisible()) {
+
+			if(windowOpen) {
+			//map.getCameraPosition().target
+			outState.putString("eventId", lastEventId);
+			outState.putFloat("zoom", map.getCameraPosition().zoom);
+			Log.i("save", "Last event saved from marker " +lastEventId);
+		}else{
+			if(map!=null) {
+				outState.putString("eventId", null);
+
+
+					mapPosition = map.getCameraPosition().target;
+					outState.putDouble("lat", mapPosition.latitude);
+					outState.putDouble("lng", mapPosition.longitude);
+					outState.putFloat("zoom", map.getCameraPosition().zoom);
+					Log.i("save", "map position saved " + String.valueOf(mapPosition));
+
+			}
+		}
+		}else{
+			Log.i("save", "Not saving map not visible " + String.valueOf(mapPosition));
+		}
 	}
 
 	@Override
@@ -217,29 +277,117 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 		public void onReceive(Context context, Intent intent) {
 
 
-			LatLng currentLocation = new LatLng( intent.getDoubleExtra("lat",0), intent.getDoubleExtra("lng",0));
-			refreshMGoogleMap(currentLocation);
+			GlobalLocVar = new LatLng( intent.getDoubleExtra("lat",0), intent.getDoubleExtra("lng",0));
+			reactToServerBroadcast(GlobalLocVar);
+			//refreshMGoogleMap(currentLocation);
 		}
 
 
 	};
 
+	public void reactToServerBroadcast(LatLng loc){
+		List<Event_db> eve=new Select().from(Event_db.class).orderBy("eventStarttime ASC").execute();
+		if(map!=null){
+		for (Event_db e : eve) {
+			LatLng lokacija = new LatLng(e.getVenueLocation().getLatitude(), e.getVenueLocation().getLongitude());
 
+			if (!markers.containsValue(e)) {
+
+				Marker marker = map.addMarker(new MarkerOptions()
+						.title(e.getEventName())
+						.snippet(e.getVenueName())
+						.icon(BitmapDescriptorFactory
+								.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+						.position(lokacija));
+
+				markers.put(marker, e);
+				markersInv.put(e, marker);
+
+
+				}
+			}
+		}
+
+		if(firstZoomFromMain){
+			CameraPosition cameraPosition = new CameraPosition.Builder()
+					.target(loc).zoom(14).build();
+
+			map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+			firstZoomFromMain=false;
+		}
+	}
 	public void refreshMGoogleMap(LatLng loc){
 		if(map!=null) {
+			boolean helper=false;
+			List<Event_db> eve=new Select().from(Event_db.class).orderBy("eventStarttime ASC").execute();
+
+			for (Event_db e : eve) {
+				LatLng lokacija = new LatLng(e.getVenueLocation().getLatitude(), e.getVenueLocation().getLongitude());
+
+				if(!markers.containsValue(e)) {
+
+					Marker marker = map.addMarker(new MarkerOptions()
+							.title(e.getEventName())
+							.snippet(e.getVenueName())
+							.icon(BitmapDescriptorFactory
+									.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+							.position(lokacija));
+
+					if(e.getEventId().equals(lastEventId)){
+						currentMarker=marker;
+						helper=true;
 
 
-			if (!zoom) {
 
-				//map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 10));
+					}
+		/*			else if(loc!=null) {
 
-				CameraPosition cameraPosition = new CameraPosition.Builder()
-						.target(loc).zoom(14).build();
 
-				map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+						if (!zoom) {
 
-				zoom = true;
-			}
+							//map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 10));
+
+							CameraPosition cameraPosition = new CameraPosition.Builder()
+									.target(loc).zoom(14).build();
+
+							map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+							zoom = true;
+						}
+					}*/
+
+					markers.put(marker, e);
+					markersInv.put(e, marker);
+
+
+					}
+
+
+
+
+
+
+				}
+				if(helper){
+					//Log.i("save", "RefreshMap current marker is " + markers.get(currentMarker).getEventId());
+					CameraPosition cameraPosition = new CameraPosition.Builder()
+							.target(currentMarker.getPosition()).zoom(mZoom).build();
+
+					map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+					currentMarker.showInfoWindow();
+
+			}else if(mapPosition!=null){
+					CameraPosition cameraPosition = new CameraPosition.Builder()
+							.target(mapPosition).zoom(mZoom).build();
+
+					map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+				}else if(loc!=null){
+					CameraPosition cameraPosition = new CameraPosition.Builder()
+							.target(loc).zoom(14).build();
+
+					map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+					firstZoomFromMain=false;
+				}
 
 
 			/*Circle circle = map.addCircle(new CircleOptions()
@@ -248,7 +396,7 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 					.strokeColor(Color.LTGRAY)
 					.fillColor(Color.TRANSPARENT));*/
 
-			RefreshMarkers();
+			//RefreshMarkers();
 		}
 
 	}
@@ -267,9 +415,22 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 								.defaultMarker(BitmapDescriptorFactory.HUE_RED))
 						.position(lokacija));
 
+				if(e.getEventId().equals(lastEventId)){
+					currentMarker=marker;
+				}
+
 				markers.put(marker, e);
 				markersInv.put(e, marker);
 			}
+		}
+
+		if(currentMarker!=null){
+			Log.i("save", "RefreshMap current marker is " + markers.get(currentMarker).getEventId());
+		CameraPosition cameraPosition = new CameraPosition.Builder()
+				.target(currentMarker.getPosition()).zoom(14).build();
+
+		map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+		currentMarker.showInfoWindow();
 		}
 	}
 
@@ -385,8 +546,10 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 			fabn.hide();
 		if(fabp!=null)
 			fabp.hide();
-
-
+		if(map!=null) {
+			mapPosition = map.getCameraPosition().target;
+			mZoom = map.getCameraPosition().zoom;
+		}
 	}
 
 	@Override
@@ -422,11 +585,13 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 
 			@Override
 			public boolean onMarkerClick(Marker marker) {
+
 				if(markers.containsKey(marker)) {
-				currentMarker=marker;
+				currentMarker1=marker;
+
 
 						CameraPosition cameraPosition = new CameraPosition.Builder()
-								.target(currentMarker.getPosition()).zoom(map.getCameraPosition().zoom).build();
+								.target(currentMarker1.getPosition()).zoom(map.getCameraPosition().zoom).build();
 
 						map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
@@ -436,10 +601,13 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 
 						@Override
 						public void onFinish() {
-
+							windowOpen=true;
 							int numberOfEvents=0;
 							List<Event_db> queryResults=new Select().from(Event_db.class).execute();
-							Event_db e=markers.get(currentMarker);
+							Event_db e=markers.get(currentMarker1);
+							lastEventId=e.getEventId();
+							Log.i("save", "in marker listener last marker is " + lastEventId);
+							Log.i("save", "window is open?" + windowOpen);
 							markersInLocation.clear();
 							for (Event_db event : queryResults) {
 								if(event.getVenueId().equals(e.getVenueId())) {
@@ -507,12 +675,16 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 		map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
 			@Override
 			public void onMapClick(LatLng latLng) {
+
 				fabn = getNext();
 				fabp = getPrevious();
 				if(fabn!=null)
 					fabn.hide();
 				if(fabp!=null)
 					fabp.hide();
+				lastEventId="";
+				windowOpen=false;
+				Log.i("save", "window closed");
 			}
 		});
 
@@ -547,15 +719,20 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 			}
 		});
 
+map.setOnInfoWindowCloseListener(new GoogleMap.OnInfoWindowCloseListener() {
+	@Override
+	public void onInfoWindowClose(Marker marker) {
 
+	}
+});
 		map.clear();
 		markers.clear();
 
 		zoom=false;
 
-		if(GlobalLocVar!=null){
+		//if(GlobalLocVar!=null){
 			refreshMGoogleMap(GlobalLocVar);
-		}
+		//}
 		/*RefreshMarkers();
 		if (loc != null) {
 			//GetDataFromServer(location);

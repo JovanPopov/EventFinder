@@ -38,7 +38,6 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:configChanges="orientation|screenSize|keyboardHidden"
             android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity
             android:name=".activities.MyPreferenceActivity"
@@ -48,6 +47,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
+        <!--  android:configChanges="orientation|screenSize|keyboardHidden"-->
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
