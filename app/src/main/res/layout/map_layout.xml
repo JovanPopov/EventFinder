@@ -1,38 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <!-- Lots of fancy layout -->
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_next"
-        android:visibility="gone"
-        app:fabSize="mini"
-        app:backgroundTint="@color/wallet_bright_foreground_holo_dark"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginLeft="70dp"
-        android:src="@drawable/arrowright" />
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_previous"
-        android:visibility="gone"
-        app:fabSize="mini"
-        app:backgroundTint="@color/wallet_bright_foreground_holo_dark"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginRight="70dp"
-        android:src="@drawable/arrowleft" />
-
+    android:layout_height="fill_parent">
 
     <RelativeLayout
         android:id="@+id/map_container"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:padding="0px" >
+        android:padding="0px" />
 
-</RelativeLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="horizontal"
+        android:paddingBottom="50dp">
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab_previous"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/arrowleft"
+            android:visibility="invisible"
+            app:backgroundTint="@color/wallet_bright_foreground_holo_dark"
+            app:fabSize="mini" />
+
+        <Space
+            android:layout_width="30dp"
+            android:layout_height="1dp" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/arrowright"
+            android:visibility="invisible"
+            app:backgroundTint="@color/wallet_bright_foreground_holo_dark"
+            app:fabSize="mini" />
+    </LinearLayout>
+
+
 </RelativeLayout>

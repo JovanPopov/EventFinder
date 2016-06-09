@@ -121,6 +121,8 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 			lastEventId= savedInstanceState.getString("eventId");
 			if (lastEventId!=null) {
 				windowOpen=true;
+				markersPosition= savedInstanceState.getInt("position");
+				cluster= savedInstanceState.getBoolean("cluster");
 				Log.i("save", "last Id loaded is " + lastEventId);
 			}else{
 
@@ -174,6 +176,8 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 			//map.getCameraPosition().target
 			outState.putString("eventId", lastEventId);
 			outState.putFloat("zoom", map.getCameraPosition().zoom);
+			outState.putInt("position",markersPosition);
+			outState.putBoolean("cluster", cluster);
 			Log.i("save", "Last event saved from marker " +lastEventId);
 		}else{
 			if(map!=null) {
