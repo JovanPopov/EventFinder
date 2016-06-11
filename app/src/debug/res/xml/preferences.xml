@@ -27,6 +27,12 @@
         android:title="App settings"
         android:key="app_settings">
 
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_splash"
+            android:summary="Show splash screen at startup"
+            android:title="Splash screen" />
+
 
         <ListPreference
             android:dialogTitle="Home screen"

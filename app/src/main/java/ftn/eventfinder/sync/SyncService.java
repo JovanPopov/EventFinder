@@ -65,10 +65,11 @@ public class SyncService extends Service {
             if (status == ConnectivityTools.TYPE_WIFI || status == ConnectivityTools.TYPE_MOBILE) {
                 //SyncFromServer();
                 try {
-                    LatLng l=new LatLng(location.getLatitude(), location.getLongitude());
+                    //LatLng l=new LatLng(location.getLatitude(), location.getLongitude());
+                    LatLng l=getLocation(location.getLatitude(), location.getLongitude(),100);
                     new SyncTask(getApplicationContext()).execute(l);
-                    LatLng l1=getLocation(location.getLatitude(), location.getLongitude(),500);
-                    new SyncTask(getApplicationContext()).execute(l1);
+                    //LatLng l1=getLocation(location.getLatitude(), location.getLongitude(),500);
+                    //new SyncTask(getApplicationContext()).execute(l1);
                    /* LatLng l2=getLocation(location.getLatitude(), location.getLongitude(),500);
                     new SyncTask(getApplicationContext()).execute(l2);
                     LatLng l3=getLocation(location.getLatitude(), location.getLongitude(),500);

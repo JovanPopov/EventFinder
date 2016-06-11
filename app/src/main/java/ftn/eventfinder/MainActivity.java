@@ -5,7 +5,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.PersistableBundle;
@@ -14,6 +16,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
@@ -26,15 +29,23 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.activeandroid.query.Delete;
 import com.activeandroid.query.Select;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStates;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
 
 import java.util.List;
 
@@ -53,7 +64,7 @@ import ftn.eventfinder.tools.FragmentTransition;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener, LocationListener {
+        GoogleApiClient.OnConnectionFailedListener, LocationListener, ResultCallback<LocationSettingsResult> {
 
     //sync
     private PendingIntent pendingIntent;
@@ -75,14 +86,15 @@ public class MainActivity extends AppCompatActivity
     Location mLastLocation;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
-
-
+    protected static final int REQUEST_CHECK_SETTINGS = 0x1;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -96,6 +108,7 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
 
         toggle.syncState();
+
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -130,6 +143,15 @@ public class MainActivity extends AppCompatActivity
 
         setUpReceiver();
         buildGoogleApiClient();
+
+    /*    if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            getSupportActionBar().hide();
+        }
+        else {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        }*/
+
     }
 
 
@@ -354,6 +376,46 @@ public class MainActivity extends AppCompatActivity
             Toast.makeText(this, "getLocation error", Toast.LENGTH_SHORT).show();
          }
 
+
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(mLocationRequest);
+
+        PendingResult<LocationSettingsResult> result =
+                LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient, builder.build());
+
+        result.setResultCallback(this);
+
+    }
+
+
+    @Override
+    public void onResult(@NonNull LocationSettingsResult locationSettingsResult) {
+        final Status status = locationSettingsResult.getStatus();
+        final LocationSettingsStates LS_state = locationSettingsResult.getLocationSettingsStates();
+        switch (status.getStatusCode()) {
+            case LocationSettingsStatusCodes.SUCCESS:
+                // All location settings are satisfied. The client can initialize location
+                // requests here.
+
+                break;
+            case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                // Location settings are not satisfied. But could be fixed by showing the user
+                // a dialog.
+                try {
+                    // Show the dialog by calling startResolutionForResult(),
+                    // and check the result in onActivityResult().
+                    status.startResolutionForResult(this, REQUEST_CHECK_SETTINGS);
+
+                } catch (IntentSender.SendIntentException e) {
+                    // Ignore the error.
+                }
+                break;
+            case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                // Location settings are not satisfied. However, we have no way to fix the
+                // settings so we won't show the dialog.
+
+                break;
+        }
     }
 
     @Override
@@ -409,4 +471,5 @@ public class MainActivity extends AppCompatActivity
 
         dialog.show();
     }
+
 }

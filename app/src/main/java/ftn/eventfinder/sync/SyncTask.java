@@ -9,6 +9,7 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.view.Gravity;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -275,15 +276,19 @@ public class SyncTask extends AsyncTask<LatLng, Void, String> {
         intent.putExtra("lng",loc.longitude);
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 
+       // ints.putExtra("LOCATION", 1);
+       // ints.putExtra(RESULT_CODE, 4);
+      //  context.sendBroadcast(ints);
 
-   // context.sendBroadcast(ints);
-
-        /*Toast toast = new Toast(context);
+    /*    Toast toast = new Toast(context);
         ImageView view = new ImageView(context);
         view.setImageResource(R.drawable.ic_action_refresh);
         toast.setView(view);
         toast.show();*/
 
+        /*Toast toast = Toast.makeText(context,"Sync", Toast.LENGTH_LONG);
+        toast.setGravity(Gravity.BOTTOM | Gravity.RIGHT, 0, 0);
+        toast.show();*/
 
         Toast.makeText(context, "New Entites: " + String.valueOf(newEntites), Toast.LENGTH_SHORT).show();
         Log.i("poruka", result);

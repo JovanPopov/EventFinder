@@ -2,7 +2,9 @@ package ftn.eventfinder.activities;
 
 import android.app.ActionBar;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -27,13 +29,19 @@ public class Splash extends AppCompatActivity {
 
         startService(new Intent(this, ClearDbService.class));
 
-        new Timer().schedule(new TimerTask() {
-             @Override
-             public void run() {
-                 startActivity(new Intent(Splash.this, MainActivity.class));
-                 finish();
-                 }
-             }, SPLASH_TIMEOUT);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+       // Boolean splash = ;
+        if(sharedPreferences.getBoolean("pref_splash", true)) {
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    startActivity(new Intent(Splash.this, MainActivity.class));
+                    finish();
+                }
+            }, SPLASH_TIMEOUT);
+        }else{
+            startActivity(new Intent(Splash.this, MainActivity.class));
+        }
     }
 
     @Override

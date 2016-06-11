@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
@@ -129,9 +130,9 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 				mapPosition=new LatLng(savedInstanceState.getDouble("lat"),savedInstanceState.getDouble("lng"));
 				Log.i("save", "Map position loaded is" + String.valueOf(savedInstanceState.getDouble("lat")) + String.valueOf(savedInstanceState.getDouble("lng")));
 				//Log.i("save", "Map position loaded is" + String.valueOf(mapPosition));
-				double lat= 0.0;
-				double lng= 0.0;
-				if(savedInstanceState.getDouble("lat")==lat && savedInstanceState.getDouble("lat")==lng) firstZoomFromMain=true;
+				//double lat= 0.0;
+				//double lng= 0.0;
+				//if(savedInstanceState.getDouble("lat")==lat && savedInstanceState.getDouble("lat")==lng) firstZoomFromMain=true;
 			}
 
 		} else {
@@ -335,8 +336,18 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 				}
 				if(helper){
 					//Log.i("save", "RefreshMap current marker is " + markers.get(currentMarker).getEventId());
+					//CameraPosition cameraPosition = new CameraPosition.Builder()
+							//.target(currentMarker.getPosition()).zoom(mZoom).build();
+
 					CameraPosition cameraPosition = new CameraPosition.Builder()
-							.target(currentMarker.getPosition()).zoom(mZoom).build();
+							.target(
+									new LatLng(currentMarker.getPosition().latitude + (
+											getResources()
+													.getConfiguration()
+													.orientation == Configuration.ORIENTATION_LANDSCAPE ? 0.003 : 0
+									), currentMarker.getPosition().longitude))
+							.zoom(mZoom)
+							.build();
 
 					//map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 					map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), 10, new GoogleMap.CancelableCallback() {
@@ -518,7 +529,11 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 	}
 
 	private void createMapFragmentAndInflate() {
-		mMapFragment = SupportMapFragment.newInstance();
+
+		if(mMapFragment==null) {
+			mMapFragment = SupportMapFragment.newInstance();
+		}
+
 		FragmentTransaction transaction = getChildFragmentManager()
 				.beginTransaction();
 		transaction.replace(R.id.map_container, mMapFragment).commit();
@@ -535,7 +550,6 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 			fabn.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View view) {
-					Log.i("save", "fab next");
 					if (!markersInLocation.isEmpty()) {
 						if (markersPosition == markersInLocation.size() - 1) {
 							markersPosition = 0;
@@ -555,7 +569,6 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 			fabp.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View view) {
-					Log.i("save", "fab previous");
 					if (!markersInLocation.isEmpty()) {
 						if (markersPosition == 0) {
 							markersPosition = markersInLocation.size() - 1;
@@ -577,6 +590,21 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 			GlobalLocVar = new LatLng(args.getDouble("lat"), args.getDouble("lng"));
 		}
 
+		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+
+			LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+					LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+
+			layoutParams.setMargins(0, 150, 0, 0);
+
+			fabn.setLayoutParams(layoutParams);
+			fabp.setLayoutParams(layoutParams);
+
+
+		}
+		else {
+			//fabn.setPadding(0,100,0,0);
+		}
 		return view;
 
 	}
@@ -634,10 +662,19 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 				currentMarker1=marker;
 
 
-						CameraPosition cameraPosition = new CameraPosition.Builder()
-								.target(currentMarker1.getPosition()).zoom(map.getCameraPosition().zoom).build();
+						//CameraPosition cameraPosition = new CameraPosition.Builder()
+								//.target(currentMarker1.getPosition()).zoom(map.getCameraPosition().zoom).build();
+					CameraPosition cameraPosition = new CameraPosition.Builder()
+							.target(
+									new LatLng(currentMarker1.getPosition().latitude + (
+											getResources()
+													.getConfiguration()
+													.orientation == Configuration.ORIENTATION_LANDSCAPE ? 0.003 : 0
+									), currentMarker1.getPosition().longitude))
+							.zoom(map.getCameraPosition().zoom)
+							.build();
 
-						map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+						//map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
 						//map.moveCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
 
