@@ -103,7 +103,7 @@ public class SyncTask extends AsyncTask<LatLng, Void, String> {
         } catch (IOException e) {
             ints.putExtra(SERVER_RESPONSE, ConnectivityTools.SERVER_RESPONSE_ERROR);
             Log.e("SYNC", "SyncTask", e);
-            return e.getMessage();
+            return "Failed to connect to our server, please try again later";
         }
        try {
            persist();
@@ -111,11 +111,11 @@ public class SyncTask extends AsyncTask<LatLng, Void, String> {
        } catch (Exception e) {
            ints.putExtra(SERVER_RESPONSE, ConnectivityTools.SERVER_RESPONSE_ERROR);
            Log.e("SYNC", "SyncTask", e);
-           return e.getMessage();
+           return "Problem with the database";
        }
 
        ints.putExtra(SERVER_RESPONSE, ConnectivityTools.SERVER_RESPONSE_OK);
-        return "Sync sucsessfull";
+        return "New Entites: " + String.valueOf(newEntites);
     }
 
 	/*
@@ -290,7 +290,8 @@ public class SyncTask extends AsyncTask<LatLng, Void, String> {
         toast.setGravity(Gravity.BOTTOM | Gravity.RIGHT, 0, 0);
         toast.show();*/
 
-        Toast.makeText(context, "New Entites: " + String.valueOf(newEntites), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(context, "New Entites: " + String.valueOf(newEntites), Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, result, Toast.LENGTH_SHORT).show();
         Log.i("poruka", result);
 
 	}

@@ -1,5 +1,6 @@
 package ftn.eventfinder;
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -19,6 +20,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -86,7 +88,9 @@ public class MainActivity extends AppCompatActivity
     Location mLastLocation;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
+    private boolean locationChecked;
     protected static final int REQUEST_CHECK_SETTINGS = 0x1;
+
 
 
     @Override
@@ -97,7 +101,6 @@ public class MainActivity extends AppCompatActivity
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
        // Toast.makeText(MainActivity.this,String.valueOf(savedInstanceState.get("deleted")) , Toast.LENGTH_SHORT).show();
         Log.i("main", "onCreate()");
 
@@ -129,6 +132,7 @@ public class MainActivity extends AppCompatActivity
 
         }else{
             Log.i("main", "Saved state not null");
+            locationChecked=savedInstanceState.getBoolean("locationChecked");
             String fragmentTag=home;
             if(savedInstanceState.getBoolean("map")){
                 fragmentTag="map";
@@ -172,6 +176,7 @@ public class MainActivity extends AppCompatActivity
             outState.putBoolean("list", true);
             Log.i("main", "list saved ");
         }
+        outState.putBoolean("locationChecked", locationChecked);
     }
 
     private void setUpReceiver(){
@@ -242,6 +247,11 @@ public class MainActivity extends AppCompatActivity
             return true;
         }
 
+        if (id == R.id.action_refresh) {
+            startService(getLocation());
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -287,9 +297,7 @@ public class MainActivity extends AppCompatActivity
             }*/
 
         } else if (id == R.id.nav_refresh) {
-                Intent si = new Intent(this, SyncService.class);
-                si.putExtra("location", mLastLocation);
-                startService(si);
+            startService(getLocation());
 
 
         } else if (id == R.id.nav_settings) {
@@ -362,11 +370,13 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+        String synct = sharedPreferences.getString(getString(R.string.pref_sync_list), "10000");
+        int time=Integer.parseInt(synct);
         Toast.makeText(this, "onConnected()", Toast.LENGTH_SHORT).show();
         mLocationRequest = LocationRequest.create();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-        mLocationRequest.setInterval(80000); // Update location every second 10000
-        mLocationRequest.setFastestInterval(80000);
+        mLocationRequest.setInterval(time); // Update location every second 10000
+        mLocationRequest.setFastestInterval(time);
         //mLocationRequest.setSmallestDisplacement(15);
         try{
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
@@ -377,13 +387,10 @@ public class MainActivity extends AppCompatActivity
          }
 
 
-        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
-                .addLocationRequest(mLocationRequest);
-
-        PendingResult<LocationSettingsResult> result =
-                LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient, builder.build());
-
-        result.setResultCallback(this);
+        if(!locationChecked) {
+            checkLocation();
+            locationChecked=true;
+        }
 
     }
 
@@ -431,11 +438,52 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onLocationChanged(Location location) {
-        Toast.makeText(this, "onLocationChanged()", Toast.LENGTH_SHORT).show();
-        Intent si = new Intent(this, SyncService.class);
-        si.putExtra("location", location);
-        startService(si);
+        Toast.makeText(this, "Location updated", Toast.LENGTH_SHORT).show();
+            startService(location);
 
+        if (ConnectivityTools.getConnectivityStatus(getApplicationContext()) == ConnectivityTools.TYPE_NOT_CONNECTED) {
+            Intent intent = new Intent("syncResponse");
+            intent.putExtra("lat",location.getLatitude());
+            intent.putExtra("lng",location.getLongitude());
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        }
+
+
+    }
+    private void checkLocation(){
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(mLocationRequest);
+
+        PendingResult<LocationSettingsResult> result =
+                LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient, builder.build());
+
+        result.setResultCallback(this);
+    }
+
+    private void startService(Location location){
+        if(location==null){
+            checkLocation();
+        }else {
+
+            if (ConnectivityTools.getConnectivityStatus(getApplicationContext()) != ConnectivityTools.TYPE_NOT_CONNECTED) {
+                Intent si = new Intent(this, SyncService.class);
+                si.putExtra("location", location);
+                startService(si);
+            } else {
+                Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    public Location getLocation(){
+        Location loc=null;
+        try{
+            loc = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        } catch (SecurityException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "getLocation error", Toast.LENGTH_SHORT).show();
+        }
+        return loc;
     }
 
     synchronized void buildGoogleApiClient() {
@@ -448,6 +496,9 @@ public class MainActivity extends AppCompatActivity
 
 
     }
+
+
+
 
     @Override
     protected void onStart() {
