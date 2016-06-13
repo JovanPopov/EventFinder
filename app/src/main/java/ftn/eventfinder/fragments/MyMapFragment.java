@@ -31,6 +31,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.activeandroid.query.Select;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
@@ -42,6 +43,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.squareup.picasso.Picasso;
@@ -397,12 +399,24 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 							.target(mapPosition).zoom(mZoom).build();
 
 					map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-				}else if(loc!=null){
-					CameraPosition cameraPosition = new CameraPosition.Builder()
+				}else if(!markers.isEmpty()){
+					/*CameraPosition cameraPosition = new CameraPosition.Builder()
 							.target(loc).zoom(14).build();
 
-					map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-					firstZoomFromMain=false;
+					map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));*/
+
+
+					LatLngBounds.Builder builder = new LatLngBounds.Builder();
+					for (Marker marker : markers.keySet()) {
+						builder.include(marker.getPosition());
+					}
+					LatLngBounds bounds = builder.build();
+
+					int padding = 100; // offset from edges of the map in pixels
+					CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+
+					map.moveCamera(cu);
+					//firstZoomFromMain=false;
 				}
 
 
@@ -412,106 +426,14 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 					.strokeColor(Color.LTGRAY)
 					.fillColor(Color.TRANSPARENT));*/
 
-			//RefreshMarkers();
-
 		}
 
 	}
-	public void RefreshMarkers(){
-		List<Event_db> eve=new Select().from(Event_db.class).orderBy("eventStarttime ASC").execute();
-
-		for (Event_db e : eve) {
-			LatLng lokacija = new LatLng(e.getVenueLocation().getLatitude(), e.getVenueLocation().getLongitude());
-
-			if(!markers.containsValue(e)) {
-
-				Marker marker = map.addMarker(new MarkerOptions()
-						.title(e.getEventName())
-						.snippet(e.getVenueName())
-						.icon(BitmapDescriptorFactory
-								.defaultMarker(BitmapDescriptorFactory.HUE_RED))
-						.position(lokacija));
-
-				if(e.getEventId().equals(lastEventId)){
-					currentMarker=marker;
-				}
-
-				markers.put(marker, e);
-				markersInv.put(e, marker);
-			}
-		}
-
-		if(currentMarker!=null){
-			Log.i("save", "RefreshMap current marker is " + markers.get(currentMarker).getEventId());
-		CameraPosition cameraPosition = new CameraPosition.Builder()
-				.target(currentMarker.getPosition()).zoom(14).build();
-
-		map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-		currentMarker.showInfoWindow();
-		}
-	}
-
-
-	public void RefreshMap(LatLng currentLocation){
-		if(map!=null) {
-
-			List<Event_db> eve=new Select().from(Event_db.class).execute();
-			int iii= new Select().from(Event_db.class).count();
-			LatLng lll=null;
-			if(currentLocation!=null) {
-				lll=currentLocation;
-
-				mapZoom(lll);
-				zoom = true;
-				Circle circle = map.addCircle(new CircleOptions()
-						.center(lll)
-						.radius(2500)
-						.strokeColor(Color.LTGRAY)
-						.fillColor(Color.TRANSPARENT));
-			}else {
-				if(iii>0) {
-					lll = new LatLng(eve.get(0).getVenueLocation().getLatitude(), eve.get(0).getVenueLocation().getLongitude());
-					mapZoom(lll);
-				}
-			}
 
 
 
 
-			for (Event_db e : eve) {
-				LatLng lokacija = new LatLng(e.getVenueLocation().getLatitude(), e.getVenueLocation().getLongitude());
 
-				if(!markers.containsValue(e)) {
-
-					Marker marker = map.addMarker(new MarkerOptions()
-							.title(e.getEventName())
-							.snippet(e.getVenueName())
-							.icon(BitmapDescriptorFactory
-									.defaultMarker(BitmapDescriptorFactory.HUE_RED))
-							.position(lokacija));
-
-					markers.put(marker, e);
-					markersInv.put(e, marker);
-				}
-			}
-		}
-	}
-
-	public void mapZoom(LatLng loc){
-		if (!zoom) {
-
-			//map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 10));
-
-			CameraPosition cameraPosition = new CameraPosition.Builder()
-					.target(loc).zoom(13).build();
-
-			map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-
-
-		}
-
-
-	}
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -772,6 +694,8 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 				Intent si = new Intent(getActivity(), SyncService.class);
 				si.putExtra("location", location);
 				getActivity().startService(si);
+
+
 			}
 		});
 
