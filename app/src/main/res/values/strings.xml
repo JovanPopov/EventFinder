@@ -47,10 +47,7 @@
     <string name="title_activity_settings">Settings</string>
 
 
-
-
-
-   <!-- Za nas settings-->
+    <!-- Za nas settings-->
     <string-array name="pref_syncConnectionTypes_entries">
         <item>10 sec</item>
         <item>30 sec</item>
@@ -86,4 +83,5 @@
 
     <string name="sync_preferences">sync_preferences</string>
     <string name="date_last_synchronized">date_last_synchronized</string>
+    <string name="title_activity_venue_detail1">VenueDetail1</string>
 </resources>

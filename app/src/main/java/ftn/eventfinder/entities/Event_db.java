@@ -17,14 +17,7 @@ import javax.annotation.Generated;
 public class Event_db extends Model {
 
 
-    @Column(name = "venueId")
-    private String venueId;
-    @Column(name = "venueName")
-    private String venueName;
-    @Column(name = "venueCoverPicture")
-    private String venueCoverPicture;
-    @Column(name = "venueProfilePicture")
-    private String venueProfilePicture;
+
     @Column(name = "VenueLocation", onUpdate = Column.ForeignKeyAction.CASCADE, onDelete = Column.ForeignKeyAction.CASCADE)
     private VenueLocation_db venueLocation_db;
     @Column(name = "eventId")
@@ -33,7 +26,6 @@ public class Event_db extends Model {
     private String eventName;
     @Column(name = "eventCoverPicture")
     private String eventCoverPicture;
-    @Expose
     @Column(name = "eventProfilePicture")
     private String eventProfilePicture;
     @Column(name = "eventDescription")
@@ -52,12 +44,9 @@ public class Event_db extends Model {
     public Event_db() {
     }
 
-    public Event_db(String venueId, String venueName, String venueCoverPicture, String venueProfilePicture, VenueLocation_db venueLocation, String eventId, String eventName, String eventCoverPicture, String eventProfilePicture, String eventDescription, String eventStarttime, String eventDistance, Integer eventTimeFromNow, EventStats_db eventStats_db, Map<String, Object> additionalProperties) {
+    public Event_db(VenueLocation_db venueLocation, String eventId, String eventName, String eventCoverPicture, String eventProfilePicture, String eventDescription, String eventStarttime, String eventDistance, Integer eventTimeFromNow, EventStats_db eventStats_db, Map<String, Object> additionalProperties) {
 
-        this.venueId = venueId;
-        this.venueName = venueName;
-        this.venueCoverPicture = venueCoverPicture;
-        this.venueProfilePicture = venueProfilePicture;
+
         this.venueLocation_db = venueLocation;
         this.eventId = eventId;
         this.eventName = eventName;
@@ -71,77 +60,7 @@ public class Event_db extends Model {
         this.additionalProperties = additionalProperties;
     }
 
-    /**
-     *
-     * @return
-     *     The venueId
-     */
-    public String getVenueId() {
-        return venueId;
-    }
 
-    /**
-     *
-     * @param venueId
-     *     The venueId
-     */
-    public void setVenueId(String venueId) {
-        this.venueId = venueId;
-    }
-
-    /**
-     *
-     * @return
-     *     The venueName
-     */
-    public String getVenueName() {
-        return venueName;
-    }
-
-    /**
-     *
-     * @param venueName
-     *     The venueName
-     */
-    public void setVenueName(String venueName) {
-        this.venueName = venueName;
-    }
-
-    /**
-     *
-     * @return
-     *     The venueCoverPicture
-     */
-    public String getVenueCoverPicture() {
-        return venueCoverPicture;
-    }
-
-    /**
-     *
-     * @param venueCoverPicture
-     *     The venueCoverPicture
-     */
-    public void setVenueCoverPicture(String venueCoverPicture) {
-        this.venueCoverPicture = venueCoverPicture;
-    }
-
-    /**
-     *
-     * @return
-     *     The venueProfilePicture
-     */
-    public String getVenueProfilePicture() {
-        return venueProfilePicture;
-    }
-
-    /**
-     *
-     * @param venueProfilePicture
-     *     The venueProfilePicture
-     */
-    public void setVenueProfilePicture(String venueProfilePicture) {
-        this.venueProfilePicture = venueProfilePicture;
-    }
 
     /**
      *

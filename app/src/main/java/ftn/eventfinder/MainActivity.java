@@ -57,6 +57,7 @@ import ftn.eventfinder.entities.EventStats_db;
 import ftn.eventfinder.entities.Event_db;
 import ftn.eventfinder.entities.VenueLocation_db;
 import ftn.eventfinder.fragments.EventsListFragment;
+import ftn.eventfinder.fragments.VenuesListFragment;
 import ftn.eventfinder.sync.SyncReceiver;
 import ftn.eventfinder.sync.SyncService;
 import ftn.eventfinder.activities.MyPreferenceActivity;
@@ -138,7 +139,9 @@ public class MainActivity extends AppCompatActivity
                 fragmentTag="map";
             }else if(savedInstanceState.getBoolean("list")){
                 fragmentTag="list";
-            }
+            }else if(savedInstanceState.getBoolean("venue")){
+            fragmentTag="venue";
+        }
             Log.i("main", fragmentTag);
             FragmentManager fm = this.getSupportFragmentManager();
             Fragment existingFragment = fm.findFragmentByTag(fragmentTag);
@@ -175,6 +178,12 @@ public class MainActivity extends AppCompatActivity
         if (myFragment1 != null && myFragment1.isVisible()) {
             outState.putBoolean("list", true);
             Log.i("main", "list saved ");
+        }
+
+        VenuesListFragment myFragment2 = (VenuesListFragment)fm.findFragmentByTag("venue");
+        if (myFragment2 != null && myFragment2.isVisible()) {
+            outState.putBoolean("venue", true);
+            Log.i("main", "venue saved ");
         }
         outState.putBoolean("locationChecked", locationChecked);
     }
@@ -296,7 +305,27 @@ public class MainActivity extends AppCompatActivity
                 fm.beginTransaction().add(android.R.id.content, list).commit();
             }*/
 
-        } else if (id == R.id.nav_refresh) {
+        } else if (id == R.id.nav_venue) {
+            FragmentManager fm = this.getSupportFragmentManager();
+            Fragment existingFragment = fm.findFragmentByTag("venue");
+            if(existingFragment==null) {
+                FragmentTransition.to(VenuesListFragment.newInstance(), this, "venue");
+            }else{
+                FragmentTransition.to(existingFragment, this, "venue");
+            }
+           /* FragmentManager fm = getFragmentManager();
+
+            if (fm.findFragmentById(android.R.id.content) == null) {
+                EventsListFragment list = new EventsListFragment();
+                fm.beginTransaction().add(android.R.id.content, list).commit();
+            }*/
+
+        }
+
+
+
+
+        else if (id == R.id.nav_refresh) {
             startService(getLocation());
 
 

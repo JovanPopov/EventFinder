@@ -63,7 +63,9 @@ public class ClearDbService extends IntentService {
                 if(eventDate.before(currentDate)){
                     Log.i("clear", "entity deleted" + String.valueOf(eventDate) + e.getEventName());
 
-                    e.getVenueLocation().delete();
+                    if( e.getVenueLocation().events().size()==0)
+                        e.getVenueLocation().delete();
+
                     e.getEventStats().delete();
                     e.delete();
 

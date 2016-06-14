@@ -11,24 +11,19 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.activeandroid.query.Select;
 import com.google.android.gms.maps.CameraUpdate;
@@ -40,8 +35,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -56,19 +49,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import ftn.eventfinder.R;
-import ftn.eventfinder.RetrofitInt.EventsInterface;
-import ftn.eventfinder.dialogs.LocationDialog;
-import ftn.eventfinder.entities.EventStats_db;
 import ftn.eventfinder.entities.Event_db;
-import ftn.eventfinder.entities.VenueLocation_db;
-import ftn.eventfinder.model.Event;
-import ftn.eventfinder.model.EventsResponse;
 import ftn.eventfinder.sync.SyncService;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 
 public class MyMapFragment extends Fragment implements OnMapReadyCallback {
@@ -261,8 +243,6 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 			if (!markers.containsValue(e)) {
 
 				Marker marker = map.addMarker(new MarkerOptions()
-						.title(e.getEventName())
-						.snippet(e.getVenueName())
 						.icon(BitmapDescriptorFactory
 								.defaultMarker(BitmapDescriptorFactory.HUE_RED))
 						.position(lokacija));
@@ -295,8 +275,6 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 				if(!markers.containsValue(e)) {
 
 					Marker marker = map.addMarker(new MarkerOptions()
-							.title(e.getEventName())
-							.snippet(e.getVenueName())
 							.icon(BitmapDescriptorFactory
 									.defaultMarker(BitmapDescriptorFactory.HUE_RED))
 							.position(lokacija));
@@ -378,12 +356,13 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 					if(cluster) {
 
 						//TODO query
-						List<Event_db> queryResults=new Select().from(Event_db.class).execute();
+						//List<Event_db> queryResults=new Select().from(Event_db.class).execute();
 						Event_db e=markers.get(currentMarker);
+						List<Event_db> eves = e.getVenueLocation().events();
 						Log.i("save", "reinitialize cluster");
-						List<Event_db> cluster_db=new Select().from(Event_db.class).where("venueId = ?",e.getVenueId()).execute();
+						//List<Event_db> cluster_db=new Select().from(Event_db.class).where("venueId = ?",e.getVenueLocation().getVenueId()).execute();
 						markersInLocation.clear();
-						for (Event_db event : cluster_db) {
+						for (Event_db event : eves) {
 								markersInLocation.add(markersInv.get(event));
 
 
@@ -613,7 +592,7 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 							Log.i("save", "window is open?" + windowOpen);
 							markersInLocation.clear();
 							for (Event_db event : queryResults) {
-								if(event.getVenueId().equals(e.getVenueId())) {
+								if(event.getVenueLocation().getVenueId().equals(e.getVenueLocation().getVenueId())) {
 									numberOfEvents++;
 									markersInLocation.add(markersInv.get(event));
 								}
@@ -756,10 +735,10 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 
 			Event_db event = markers.get(arg0);
 
-			TextView title = (TextView) view.findViewById(R.id.marker_name);
+			TextView title = (TextView) view.findViewById(R.id.event_name);
 			title.setText(event.getEventName());
 
-			TextView date = (TextView) view.findViewById(R.id.marker_date);
+			TextView date = (TextView) view.findViewById(R.id.event_date);
 
 			SimpleDateFormat incomingFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 			Date date1=null;
@@ -778,10 +757,10 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 			title.setTextColor(value);
 
 
-			TextView place = (TextView) view.findViewById(R.id.marker_place);
-			place.setText(event.getVenueName());
+			TextView place = (TextView) view.findViewById(R.id.event_location);
+			place.setText(event.getVenueLocation().getVenueName());
 
-			ImageView image = (ImageView) view.findViewById(R.id.marker_picture);
+			ImageView image = (ImageView) view.findViewById(R.id.event_picture);
 
 			if(event.getEventProfilePicture() != null)
 			{

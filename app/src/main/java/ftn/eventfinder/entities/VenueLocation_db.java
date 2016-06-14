@@ -17,7 +17,14 @@ import javax.annotation.Generated;
 @Generated("org.jsonschema2pojo")
 public class VenueLocation_db extends Model {
 
-
+    @Column(name = "venueId")
+    private String venueId;
+    @Column(name = "venueName")
+    private String venueName;
+    @Column(name = "venueCoverPicture")
+    private String venueCoverPicture;
+    @Column(name = "venueProfilePicture")
+    private String venueProfilePicture;
     @Column(name = "city")
     private String city;
     @Column(name = "country")
@@ -37,9 +44,11 @@ public class VenueLocation_db extends Model {
     public VenueLocation_db() {
     }
 
-    public VenueLocation_db(Map<String, Object> additionalProperties, String city, String country, Double latitude, Double longitude, String state, String street, String zip) {
-        this.additionalProperties = additionalProperties;
-
+    public VenueLocation_db(String venueId, String venueName, String venueCoverPicture, String venueProfilePicture, String city, String country, Double latitude, Double longitude, String state, String street, String zip, Map<String, Object> additionalProperties) {
+        this.venueId = venueId;
+        this.venueName = venueName;
+        this.venueCoverPicture = venueCoverPicture;
+        this.venueProfilePicture = venueProfilePicture;
         this.city = city;
         this.country = country;
         this.latitude = latitude;
@@ -47,143 +56,106 @@ public class VenueLocation_db extends Model {
         this.state = state;
         this.street = street;
         this.zip = zip;
+        this.additionalProperties = additionalProperties;
     }
 
-    public List<Event_db> events() {
-        return getMany(Event_db.class, "VenueLocation");
+    public String getVenueId() {
+        return venueId;
     }
-    /**
-     *
-     * @return
-     *     The city
-     */
+
+    public void setVenueId(String venueId) {
+        this.venueId = venueId;
+    }
+
+    public String getVenueName() {
+        return venueName;
+    }
+
+    public void setVenueName(String venueName) {
+        this.venueName = venueName;
+    }
+
+    public String getVenueCoverPicture() {
+        return venueCoverPicture;
+    }
+
+    public void setVenueCoverPicture(String venueCoverPicture) {
+        this.venueCoverPicture = venueCoverPicture;
+    }
+
+    public String getVenueProfilePicture() {
+        return venueProfilePicture;
+    }
+
+    public void setVenueProfilePicture(String venueProfilePicture) {
+        this.venueProfilePicture = venueProfilePicture;
+    }
+
     public String getCity() {
         return city;
     }
 
-    /**
-     *
-     * @param city
-     *     The city
-     */
     public void setCity(String city) {
         this.city = city;
     }
 
-    /**
-     *
-     * @return
-     *     The country
-     */
     public String getCountry() {
         return country;
     }
 
-    /**
-     *
-     * @param country
-     *     The country
-     */
     public void setCountry(String country) {
         this.country = country;
     }
 
-    /**
-     *
-     * @return
-     *     The latitude
-     */
     public Double getLatitude() {
         return latitude;
     }
 
-    /**
-     *
-     * @param latitude
-     *     The latitude
-     */
     public void setLatitude(Double latitude) {
         this.latitude = latitude;
     }
 
-    /**
-     *
-     * @return
-     *     The longitude
-     */
     public Double getLongitude() {
         return longitude;
     }
 
-    /**
-     *
-     * @param longitude
-     *     The longitude
-     */
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
 
-    /**
-     *
-     * @return
-     *     The state
-     */
     public String getState() {
         return state;
     }
 
-    /**
-     *
-     * @param state
-     *     The state
-     */
     public void setState(String state) {
         this.state = state;
     }
 
-    /**
-     *
-     * @return
-     *     The street
-     */
     public String getStreet() {
         return street;
     }
 
-    /**
-     *
-     * @param street
-     *     The street
-     */
     public void setStreet(String street) {
         this.street = street;
     }
 
-    /**
-     *
-     * @return
-     *     The zip
-     */
     public String getZip() {
         return zip;
     }
 
-    /**
-     *
-     * @param zip
-     *     The zip
-     */
     public void setZip(String zip) {
         this.zip = zip;
     }
 
     public Map<String, Object> getAdditionalProperties() {
-        return this.additionalProperties;
+        return additionalProperties;
     }
 
-    public void setAdditionalProperty(String name, Object value) {
-        this.additionalProperties.put(name, value);
+    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+        this.additionalProperties = additionalProperties;
     }
 
+    public List<Event_db> events() {
+        return getMany(Event_db.class, "VenueLocation");
+    }
 }

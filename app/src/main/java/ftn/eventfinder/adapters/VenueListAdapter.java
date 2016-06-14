@@ -4,15 +4,16 @@ package ftn.eventfinder.adapters;
  * Created by Jovan on 4.6.2016.
  */
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.app.Activity;
 
 import com.squareup.picasso.Picasso;
 
@@ -23,14 +24,14 @@ import java.util.Date;
 import java.util.List;
 
 import ftn.eventfinder.R;
-import ftn.eventfinder.entities.Event_db;
+import ftn.eventfinder.entities.VenueLocation_db;
 
-public class EventListAdapter  extends ArrayAdapter {
+public class VenueListAdapter extends ArrayAdapter {
 
     private Context context;
     private boolean useList = true;
 
-    public EventListAdapter(Context context, List items) {
+    public VenueListAdapter(Context context, List items) {
         super(context, android.R.layout.simple_list_item_1, items);
         this.context = context;
 
@@ -52,7 +53,7 @@ public class EventListAdapter  extends ArrayAdapter {
      */
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        Event_db event = (Event_db) getItem(position);
+        VenueLocation_db venue = (VenueLocation_db) getItem(position);
         View view = null;
 
         // This block exists to inflate the settings list item conditionally based on whether
@@ -61,9 +62,9 @@ public class EventListAdapter  extends ArrayAdapter {
                 .getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
         if (convertView == null) {
             if (useList) {
-                view = mInflater.inflate(R.layout.info_window_layout, null);
+                view = mInflater.inflate(R.layout.info_venue, null);
             } else {
-                view = mInflater.inflate(R.layout.info_window_layout, null);
+                view = mInflater.inflate(R.layout.info_venue, null);
             }
 
 
@@ -77,49 +78,32 @@ public class EventListAdapter  extends ArrayAdapter {
 
 
 
-        TextView title = (TextView) view.findViewById(R.id.event_name);
-        title.setText(event.getEventName());
+        TextView title = (TextView) view.findViewById(R.id.venue_name);
+        title.setText(venue.getVenueName());
 
-        TextView date = (TextView) view.findViewById(R.id.event_date);
+        TextView location = (TextView) view.findViewById(R.id.venue_location);
+        String loca="";
+        if(venue.getCity()!=null) loca=loca.concat(venue.getCity() + ", ");
+        if(venue.getStreet()!=null) loca= loca.concat(venue.getStreet());
+        location.setText(loca);
 
-        SimpleDateFormat incomingFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-        Date date1=null;
-        try {
-            date1 = incomingFormat.parse(event.getEventStarttime());
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        SimpleDateFormat outgoingFormat = new SimpleDateFormat("EEEE, dd MMMM yyyy", java.util.Locale.getDefault());
-        SimpleDateFormat outgoingFormat1 = new SimpleDateFormat("HH:mm", java.util.Locale.getDefault());
-
-        date.setText(outgoingFormat.format(date1) + " at " + outgoingFormat1.format(date1));
+        TextView events = (TextView) view.findViewById(R.id.venue_events);
+        events.setText(String.valueOf(venue.events().size()));
 
 
-        Calendar calendar = Calendar.getInstance();
-        Date currentDate = calendar.getTime();
 
-        int value = date1.before(currentDate)?Color.RED:Color.BLACK;
-        title.setTextColor(value);
+        ImageView image = (ImageView) view.findViewById(R.id.venue_picture);
 
-        TextView place = (TextView) view.findViewById(R.id.event_location);
-        place.setText(event.getVenueLocation().getVenueName());
-
-        ImageView image = (ImageView) view.findViewById(R.id.event_picture);
-
-        if(event.getEventProfilePicture() != null)
+        if(venue.getVenueProfilePicture() != null)
         {
 
 
             //Picasso.with(view.getContext()).load(event.getEventProfilePicture()).into(image);
             Picasso.with(view.getContext())
-                    .load(event.getEventProfilePicture())
+                    .load(venue.getVenueProfilePicture())
                     .placeholder(R.drawable.image_placeholder)
                     .into(image);
         }
-
-
-
-
 
         return view;
 

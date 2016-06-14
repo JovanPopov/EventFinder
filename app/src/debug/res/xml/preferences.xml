@@ -40,25 +40,13 @@
             android:key="pref_home_list"
             android:title="Home screen"
             android:summary="%s"
-            android:defaultValue="1"/>
+            android:defaultValue="map"/>
 
     </PreferenceCategory>
 
     <PreferenceCategory
         android:title="@string/notifications"
         android:key="notif_settings">
-
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="@string/notif_on_my_review_key"
-            android:summary="@string/notif_on_my_review_summ"
-            android:title="@string/notif_on_my_review" />
-
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="@string/notif_on_my_comment_key"
-            android:summary="@string/notif_on_my_comment_summ"
-            android:title="@string/notif_on_my_comment" />
 
         <CheckBoxPreference
             android:defaultValue="false"

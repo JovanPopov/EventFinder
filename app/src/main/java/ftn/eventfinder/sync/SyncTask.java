@@ -136,11 +136,7 @@ public class SyncTask extends AsyncTask<LatLng, Void, String> {
             EventsInterface service = retrofit.create(EventsInterface.class);
             Call<EventsResponse> call = service.getEvents(location.latitude, location.longitude);
             EventsResponse eventResponse=call.execute().body();
-            if(call.isExecuted()){
-                Log.i("poruka", "call is executed");
-            }else{
-                Log.i("poruka", "call is not executed");
-            }
+
             events = eventResponse.getEvents();
 
 
@@ -184,17 +180,36 @@ public class SyncTask extends AsyncTask<LatLng, Void, String> {
     private void saveEntity(Event e){
         Log.i("poruka", "Saving entity");
 
-        VenueLocation vl=e.getVenueLocation();
-        VenueLocation_db vldb = new VenueLocation_db();
-        vldb.setCity(vl.getCity());
-        vldb.setCountry(vl.getCountry());
-        vldb.setLatitude(vl.getLatitude());
-        vldb.setLongitude(vl.getLongitude());
-        vldb.setState(vl.getState());
-        vldb.setStreet(vl.getStreet());
-        vldb.setZip(vl.getZip());
+        //VenueLocation saving
 
-        vldb.save();
+        List<VenueLocation_db> locations = new Select().from(VenueLocation_db.class).execute();
+        VenueLocation_db vldb = new VenueLocation_db();
+        boolean helper=false;
+        for(VenueLocation_db vnl:locations) {
+
+            if(vnl.getVenueId().equals(e.getVenueId())) {
+                vldb=vnl;
+                helper=true;
+                break;
+
+            }
+        }
+        if(!helper) {
+            VenueLocation vl = e.getVenueLocation();
+            vldb.setCity(vl.getCity());
+            vldb.setCountry(vl.getCountry());
+            vldb.setLatitude(vl.getLatitude());
+            vldb.setLongitude(vl.getLongitude());
+            vldb.setState(vl.getState());
+            vldb.setStreet(vl.getStreet());
+            vldb.setZip(vl.getZip());
+            vldb.setVenueCoverPicture(e.getVenueCoverPicture());
+            vldb.setVenueId(e.getVenueId());
+            vldb.setVenueName(e.getVenueName());
+            vldb.setVenueProfilePicture(e.getVenueProfilePicture());
+
+            vldb.save();
+        }
 
         EventStats es=e.getEventStats();
         EventStats_db esdb = new EventStats_db();
@@ -217,10 +232,7 @@ public class SyncTask extends AsyncTask<LatLng, Void, String> {
         edb.setEventStats(esdb);
         edb.setEventCoverPicture(e.getEventCoverPicture());
         edb.setEventTimeFromNow(e.getEventTimeFromNow());
-        edb.setVenueCoverPicture(e.getVenueCoverPicture());
-        edb.setVenueId(e.getVenueId());
         edb.setVenueLocation(vldb);
-        edb.setVenueName(e.getVenueName());
 
         edb.save();
 
