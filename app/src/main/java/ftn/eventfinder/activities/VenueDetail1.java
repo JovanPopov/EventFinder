@@ -32,6 +32,7 @@ public class VenueDetail1 extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_venue_detail1);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.getBackground().setAlpha(0);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);

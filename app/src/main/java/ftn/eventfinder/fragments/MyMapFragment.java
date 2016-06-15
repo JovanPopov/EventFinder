@@ -103,7 +103,7 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 		Log.i("save", "onCreate()");
 		if (savedInstanceState != null) {
 			tagFilter = savedInstanceState.getStringArrayList(TAG_FILTER);
-			mMapFragment.setRetainInstance(true);
+			//mMapFragment.setRetainInstance(true);
 			mZoom=savedInstanceState.getFloat("zoom");
 			lastEventId= savedInstanceState.getString("eventId");
 			if (lastEventId!=null) {
@@ -206,7 +206,7 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 		long minTime = 60000;
 		float minDistance = 15;
 
-		createMapFragmentAndInflate();
+		//createMapFragmentAndInflate();
 
 
 
@@ -394,16 +394,20 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 					map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));*/
 
 
-					LatLngBounds.Builder builder = new LatLngBounds.Builder();
+					//LatLngBounds.Builder builder = new LatLngBounds.Builder();
+					CameraPosition cameraPosition=null;
 					for (Marker marker : markers.keySet()) {
-						builder.include(marker.getPosition());
+						//builder.include(marker.getPosition());
+						cameraPosition = new CameraPosition.Builder()
+								.target(marker.getPosition()).zoom(14).build();
+						break;
 					}
-					LatLngBounds bounds = builder.build();
+					//LatLngBounds bounds = builder.build();
+					//int padding = 100; // offset from edges of the map in pixels
+					//CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
 
-					int padding = 100; // offset from edges of the map in pixels
-					CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
 
-					map.moveCamera(cu);
+					map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 					//firstZoomFromMain=false;
 				}
 
@@ -440,20 +444,23 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 
 	private void createMapFragmentAndInflate() {
 
+
 		if(mMapFragment==null) {
+			Log.i("save", "createMapFragmentAndInflate()");
 			mMapFragment = SupportMapFragment.newInstance();
+
+
+			FragmentTransaction transaction = getChildFragmentManager()
+					.beginTransaction();
+			transaction.replace(R.id.map_container, mMapFragment).commit();
+
+			mMapFragment.getMapAsync(this);
 		}
-
-		FragmentTransaction transaction = getChildFragmentManager()
-				.beginTransaction();
-		transaction.replace(R.id.map_container, mMapFragment).commit();
-
-		mMapFragment.getMapAsync(this);
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup vg, Bundle data) {
-
+		Log.i("save", "OnCreateView()");
 		View view = inflater.inflate(R.layout.map_layout, vg, false);
 		fabn=(FloatingActionButton) view.findViewById(R.id.fab_next);
 		//if(fabn!=null) {
@@ -515,6 +522,9 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 		else {
 			//fabn.setPadding(0,100,0,0);
 		}
+
+
+
 		return view;
 
 	}
@@ -550,7 +560,7 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 	public void onMapReady(GoogleMap googleMap) {
 		map = googleMap;
 		Location location = null;
-
+		Log.i("save", "onMapReady()");
 
 
 		try {
@@ -702,6 +712,7 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 
 			}
 		});
+
 		map.clear();
 		markers.clear();
 
