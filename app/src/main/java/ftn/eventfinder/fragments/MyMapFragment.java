@@ -80,6 +80,8 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 	// za cuvanje pozicije
 	private LatLng mapPosition;
 	private float mZoom;
+	private double mLat;
+	private double mLng;
 	private boolean firstZoomFromMain=false;
 	private boolean cluster;
 
@@ -110,7 +112,8 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 				cluster= savedInstanceState.getBoolean("cluster");
 				Log.i("save", "last Id loaded is " + lastEventId);
 			}else{
-
+				mLat= savedInstanceState.getDouble("lat");
+						mLng=savedInstanceState.getDouble("lng");
 				mapPosition=new LatLng(savedInstanceState.getDouble("lat"),savedInstanceState.getDouble("lng"));
 				Log.i("save", "Map position loaded is" + String.valueOf(savedInstanceState.getDouble("lat")) + String.valueOf(savedInstanceState.getDouble("lng")));
 				//Log.i("save", "Map position loaded is" + String.valueOf(mapPosition));
@@ -154,16 +157,19 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 		Log.i("save", "onSaveInstanceState()");
 
 		Log.i("save", "windows is open? " + windowOpen);
-		MyMapFragment myFragment = (MyMapFragment) getFragmentManager().findFragmentByTag("map");
-		if (myFragment != null && myFragment.isVisible()) {
+
 
 			if(windowOpen) {
-			//map.getCameraPosition().target
-			outState.putString("eventId", lastEventId);
-			outState.putFloat("zoom", map.getCameraPosition().zoom);
-			outState.putInt("position",markersPosition);
-			outState.putBoolean("cluster", cluster);
-			Log.i("save", "Last event saved from marker " +lastEventId);
+				outState.putString("eventId", lastEventId);
+				outState.putInt("position",markersPosition);
+				outState.putBoolean("cluster", cluster);
+				Log.i("save", "Last event saved from marker " +lastEventId);
+				if(map!=null) {
+					outState.putFloat("zoom", map.getCameraPosition().zoom);
+				}else{
+					outState.putFloat("zoom", mZoom);
+				}
+
 		}else{
 			if(map!=null) {
 				outState.putString("eventId", null);
@@ -175,11 +181,14 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 					outState.putFloat("zoom", map.getCameraPosition().zoom);
 					Log.i("save", "map position saved " + String.valueOf(mapPosition));
 
+			}else{
+				outState.putDouble("lat", mLat);
+				outState.putDouble("lng", mLng);
+				outState.putFloat("zoom",mZoom);
+				Log.i("save", "map position saved " + String.valueOf(mLat));
 			}
 		}
-		}else{
-			Log.i("save", "Not saving map not visible " + String.valueOf(mapPosition));
-		}
+
 	}
 
 	@Override
