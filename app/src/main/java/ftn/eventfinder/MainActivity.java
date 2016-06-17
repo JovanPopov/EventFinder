@@ -410,6 +410,7 @@ public class MainActivity extends AppCompatActivity
         try{
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+           // Log.i("GlobalLocVar", String.valueOf(mLastLocation));
         } catch (SecurityException e) {
             e.printStackTrace();
             Toast.makeText(this, "getLocation error", Toast.LENGTH_SHORT).show();
@@ -468,7 +469,8 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onLocationChanged(Location location) {
         Toast.makeText(this, "Location updated", Toast.LENGTH_SHORT).show();
-            startService(location);
+        mLastLocation=location;
+        startService(location);
 
         if (ConnectivityTools.getConnectivityStatus(getApplicationContext()) == ConnectivityTools.TYPE_NOT_CONNECTED) {
             Intent intent = new Intent("syncResponse");

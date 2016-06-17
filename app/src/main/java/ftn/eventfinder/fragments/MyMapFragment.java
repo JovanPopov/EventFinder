@@ -387,28 +387,46 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 							.target(mapPosition).zoom(mZoom).build();
 
 					map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-				}else if(!markers.isEmpty()){
-					/*CameraPosition cameraPosition = new CameraPosition.Builder()
+				}else if(loc!=null && firstZoomFromMain) {
+
+					CameraPosition cameraPosition1 = new CameraPosition.Builder()
+							.target(loc).zoom(10).build();
+					CameraPosition cameraPosition2 = new CameraPosition.Builder()
 							.target(loc).zoom(14).build();
 
-					map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));*/
+					map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition1));
+					map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition2));
 
+					firstZoomFromMain=false;
+				}else if(!markers.isEmpty()){
 
-					//LatLngBounds.Builder builder = new LatLngBounds.Builder();
-					CameraPosition cameraPosition=null;
+			//opcija 1
+
+			/*		CameraPosition cameraPosition1=null;
 					for (Marker marker : markers.keySet()) {
 						//builder.include(marker.getPosition());
-						cameraPosition = new CameraPosition.Builder()
-								.target(marker.getPosition()).zoom(14).build();
+						cameraPosition1 = new CameraPosition.Builder().target(marker.getPosition()).zoom(10).build();
 						break;
 					}
-					//LatLngBounds bounds = builder.build();
-					//int padding = 100; // offset from edges of the map in pixels
-					//CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
 
 
-					map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-					//firstZoomFromMain=false;
+					map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition1));*/
+
+				//opcija 2
+
+					LatLngBounds.Builder builder = new LatLngBounds.Builder();
+					for (Marker marker : markers.keySet()) {
+						builder.include(marker.getPosition());
+					}
+					LatLngBounds bounds = builder.build();
+					int padding = 50; // offset from edges of the map in pixels
+					CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, 500, 500, padding);
+
+
+					map.animateCamera(cu);
+
+
+
 				}
 
 
@@ -559,7 +577,6 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 	@Override
 	public void onMapReady(GoogleMap googleMap) {
 		map = googleMap;
-		Location location = null;
 		Log.i("save", "onMapReady()");
 
 
@@ -713,14 +730,14 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 			}
 		});
 
-		map.clear();
-		markers.clear();
+		///map.clear();
+		//markers.clear();
 
 		zoom=false;
+		//Log.i("GlobalLocVar", String.valueOf(GlobalLocVar));
 
-		//if(GlobalLocVar!=null){
 			refreshMGoogleMap(GlobalLocVar);
-		//}
+
 		/*RefreshMarkers();
 		if (loc != null) {
 			//GetDataFromServer(location);

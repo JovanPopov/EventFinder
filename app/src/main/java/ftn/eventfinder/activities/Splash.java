@@ -21,7 +21,7 @@ import ftn.eventfinder.sync.ClearDbService;
 
 public class Splash extends AppCompatActivity {
 
-    public static final int SPLASH_TIMEOUT = 500;
+    public static final int SPLASH_TIMEOUT = 200;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

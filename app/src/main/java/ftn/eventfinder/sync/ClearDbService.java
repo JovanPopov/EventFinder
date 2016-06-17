@@ -17,6 +17,7 @@ import java.util.List;
 
 import ftn.eventfinder.MainActivity;
 import ftn.eventfinder.entities.Event_db;
+import ftn.eventfinder.entities.VenueLocation_db;
 
 /**
  * Created by Jovan on 6.6.2016.
@@ -63,8 +64,7 @@ public class ClearDbService extends IntentService {
                 if(eventDate.before(currentDate)){
                     Log.i("clear", "entity deleted" + String.valueOf(eventDate) + e.getEventName());
 
-                    if( e.getVenueLocation().events().size()==0)
-                        e.getVenueLocation().delete();
+
 
                     e.getEventStats().delete();
                     e.delete();
@@ -76,6 +76,17 @@ public class ClearDbService extends IntentService {
 
 
             }
+
+            List<VenueLocation_db> queryResultsVenu=new Select().from(VenueLocation_db.class).execute();
+
+            for (VenueLocation_db vn :queryResultsVenu
+                 ) {
+                if( vn.events().size()==0) {
+                    Log.i("clear", "venue deleted" + vn.getVenueName());
+                    vn.delete();
+                }
+            }
+
 
             //showToast("Deleted entities: " + String.valueOf(deletes));
 

@@ -100,14 +100,14 @@ public class VenueDetail1 extends AppCompatActivity {
                     .beginTransaction()
                     .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                     .replace(R.id.fragmentEventsInVenue, toFragment, "venueEvents");
-            transaction.addToBackStack(null);
+            //transaction.addToBackStack(null);
             transaction.commit();
         }else{
             FragmentTransaction transaction = fm
                     .beginTransaction()
                     .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                     .replace(R.id.fragmentEventsInVenue,existingFragment, "venueEvents");
-            transaction.addToBackStack(null);
+            //transaction.addToBackStack(null);
             transaction.commit();
         }
 
