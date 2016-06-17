@@ -28,7 +28,7 @@
     </style>
 
     <style name="Theme.start" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:windowBackground">@drawable/coverv311</item>
+        <item name="android:windowBackground">@drawable/background_splash</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
