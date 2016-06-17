@@ -63,7 +63,7 @@
         <activity
             android:name=".activities.Splash"
             android:label="EventFinder"
-            android:theme="@style/Theme.Transparent">
+            android:theme="@style/Theme.start">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
