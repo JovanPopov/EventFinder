@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -99,7 +100,7 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 
-		createMapFragmentAndInflate();
+		//createMapFragmentAndInflate();
 		Log.i("save", "onCreate()");
 		if (savedInstanceState != null) {
 			tagFilter = savedInstanceState.getStringArrayList(TAG_FILTER);
@@ -229,6 +230,13 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 
 	}
 
+
+	@Override
+	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+
+		createMapFragmentAndInflate();
+	}
 
 	public BroadcastReceiver mReceiver = new BroadcastReceiver() {
 		@Override

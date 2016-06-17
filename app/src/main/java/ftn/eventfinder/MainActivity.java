@@ -85,7 +85,6 @@ public class MainActivity extends AppCompatActivity
     private boolean allowCommentedNotif;
     private SharedPreferences sharedPreferences;
 
-    //fusedLocation
     Location mLastLocation;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
