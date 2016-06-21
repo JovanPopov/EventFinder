@@ -3,7 +3,7 @@
 
 
     <item
-        android:drawable="@color/colorPrimary"/>
+        android:drawable="@android:color/white"/>
 
     <item>
         <bitmap

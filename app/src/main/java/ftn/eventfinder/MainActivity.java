@@ -101,7 +101,6 @@ public class MainActivity extends AppCompatActivity
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-       // Toast.makeText(MainActivity.this,String.valueOf(savedInstanceState.get("deleted")) , Toast.LENGTH_SHORT).show();
         Log.i("main", "onCreate()");
 
 
@@ -400,7 +399,6 @@ public class MainActivity extends AppCompatActivity
     public void onConnected(@Nullable Bundle bundle) {
         String synct = sharedPreferences.getString(getString(R.string.pref_sync_list), "10000");
         int time=Integer.parseInt(synct);
-        Toast.makeText(this, "onConnected()", Toast.LENGTH_SHORT).show();
         mLocationRequest = LocationRequest.create();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         mLocationRequest.setInterval(time); // Update location every second 10000
@@ -412,7 +410,7 @@ public class MainActivity extends AppCompatActivity
            // Log.i("GlobalLocVar", String.valueOf(mLastLocation));
         } catch (SecurityException e) {
             e.printStackTrace();
-            Toast.makeText(this, "getLocation error", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Error getting location", Toast.LENGTH_SHORT).show();
          }
 
 
@@ -456,18 +454,16 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onConnectionSuspended(int i) {
-        Toast.makeText(this, "onConnectionSuspended()", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         buildGoogleApiClient();
-        Toast.makeText(this, "onConnectionFailed()", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onLocationChanged(Location location) {
-        Toast.makeText(this, "Location updated", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Location updated", Toast.LENGTH_SHORT).show();
         mLastLocation=location;
         startService(location);
 
@@ -511,7 +507,7 @@ public class MainActivity extends AppCompatActivity
             loc = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         } catch (SecurityException e) {
             e.printStackTrace();
-            Toast.makeText(this, "getLocation error", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Error getting location", Toast.LENGTH_SHORT).show();
         }
         return loc;
     }

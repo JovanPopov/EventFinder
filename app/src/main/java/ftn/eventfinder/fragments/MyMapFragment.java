@@ -70,7 +70,6 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 	LatLng GlobalLocVar;
 	private ArrayList<Marker> markersInLocation = new ArrayList<Marker>();
 	private int markersPosition=0;
-	boolean zoom=false;
 	Marker previous=null;
 	private FloatingActionButton fabn;
 	private FloatingActionButton fabp;
@@ -86,7 +85,11 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 	private boolean firstZoomFromMain=false;
 	private boolean cluster;
 
+	private List<Event_db> StartingEvents;
+
+
 	public static MyMapFragment newInstance() {
+
 
 		MyMapFragment mpf = new MyMapFragment();
 
@@ -206,7 +209,7 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 		//Toast.makeText(getActivity(), "onResume()", Toast.LENGTH_SHORT).show();
 		long minTime = 60000;
 		float minDistance = 15;
-
+		StartingEvents = new Select().from(Event_db.class).orderBy("eventStarttime ASC").execute();
 		//createMapFragmentAndInflate();
 
 
@@ -226,8 +229,13 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 
 		//localReceiver
 		LocalBroadcastManager.getInstance(this.getActivity()).registerReceiver(mReceiver, new IntentFilter("syncResponse"));
-		Log.i("save", "cluster: " + String.valueOf(cluster));
 
+		if(map!=null) {
+			map.clear();
+			markers.clear();
+			markersInv.clear();
+			refreshMGoogleMap(GlobalLocVar);
+		}
 	}
 
 
@@ -284,9 +292,9 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 		Log.i("save", "refreshMGoogleMap()");
 		if(map!=null) {
 			boolean helper=false;
-			List<Event_db> eve=new Select().from(Event_db.class).orderBy("eventStarttime ASC").execute();
 
-			for (Event_db e : eve) {
+
+			for (Event_db e : StartingEvents) {
 				LatLng lokacija = new LatLng(e.getVenueLocation().getLatitude(), e.getVenueLocation().getLongitude());
 
 				if(!markers.containsValue(e)) {
@@ -385,8 +393,6 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 
 						}
 
-						Log.i("save", String.valueOf(markersInLocation.size()) );
-						Log.i("save", String.valueOf(markersPosition) );
 
 					}
 
@@ -741,7 +747,7 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 		///map.clear();
 		//markers.clear();
 
-		zoom=false;
+
 		//Log.i("GlobalLocVar", String.valueOf(GlobalLocVar));
 
 			refreshMGoogleMap(GlobalLocVar);
