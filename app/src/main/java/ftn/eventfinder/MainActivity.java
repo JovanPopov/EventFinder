@@ -20,6 +20,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
@@ -115,17 +116,35 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        String home = sharedPreferences.getString("pref_home_list", "debug");
+        String home = sharedPreferences.getString("pref_home_list", "map");
         if(savedInstanceState==null) {
             Log.i("main", "saved state null");
             //defaultView
 
             if (home.equals("map")) {
-                navigationView.getMenu().performIdentifierAction(R.id.nav_map, 0);
+                //navigationView.getMenu().performIdentifierAction(R.id.nav_map, 0);
                 navigationView.setCheckedItem(R.id.nav_map);
+
+                FragmentManager fm = this.getSupportFragmentManager();
+                MyMapFragment toFragment = MyMapFragment.newInstance();
+                FragmentTransaction transaction = fm
+                        .beginTransaction()
+                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                        .replace(R.id.mainContent, toFragment, "map");
+                transaction.commit();
+
             } else if (home.equals("list")) {
-                navigationView.getMenu().performIdentifierAction(R.id.nav_list, 0);
+                //navigationView.getMenu().performIdentifierAction(R.id.nav_list, 0);
                 navigationView.setCheckedItem(R.id.nav_list);
+
+                FragmentManager fm = this.getSupportFragmentManager();
+                EventsListFragment toFragment = EventsListFragment.newInstance();
+                FragmentTransaction transaction = fm
+                        .beginTransaction()
+                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                        .replace(R.id.mainContent, toFragment, "list");
+                transaction.commit();
+
             }
 
 
@@ -397,7 +416,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        String synct = sharedPreferences.getString(getString(R.string.pref_sync_list), "10000");
+        String synct = sharedPreferences.getString(getString(R.string.pref_sync_list), "60000");
         int time=Integer.parseInt(synct);
         mLocationRequest = LocationRequest.create();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);

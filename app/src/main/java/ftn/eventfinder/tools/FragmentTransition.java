@@ -36,7 +36,7 @@ public class FragmentTransition
 				transaction.commit();
 
 
-			// ништа
+
 		}
 
 

@@ -437,7 +437,7 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 					CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, 500, 500, padding);
 
 
-					map.animateCamera(cu);
+					map.moveCamera(cu);
 
 
 
