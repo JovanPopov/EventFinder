@@ -4,11 +4,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -50,6 +52,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import ftn.eventfinder.R;
+import ftn.eventfinder.activities.EventDetail;
 import ftn.eventfinder.entities.Event_db;
 import ftn.eventfinder.sync.SyncService;
 
@@ -691,9 +694,18 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 				//Intent intent = new Intent(getActivity(), EventDetailView.class);
 				//startActivity(intent);
 
+				SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+				// Boolean splash = ;
 				Event_db event = markers.get(arg0);
-				Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.facebook.com/events/"+event.getEventId()));
-				startActivity(browserIntent);
+
+				if(sharedPreferences.getBoolean("pref_face", false)) {
+					Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.facebook.com/events/" + event.getEventId()));
+					startActivity(browserIntent);
+				}else{
+					Intent intent = new Intent(getActivity(), EventDetail.class);
+					intent.putExtra("id", event.getEventId());
+					startActivity(intent);
+				}
 
 
 			}

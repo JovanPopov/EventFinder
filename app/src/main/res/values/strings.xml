@@ -84,4 +84,8 @@
     <string name="sync_preferences">sync_preferences</string>
     <string name="date_last_synchronized">date_last_synchronized</string>
     <string name="title_activity_venue_detail1">VenueDetail1</string>
+    <string name="title_activity_event_detail">EventDetail</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

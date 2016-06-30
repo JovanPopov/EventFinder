@@ -27,6 +27,8 @@ import ftn.eventfinder.fragments.EventsListFragment;
 public class VenueDetail1 extends AppCompatActivity {
         private String id;
         private VenueLocation_db venue;
+        FloatingActionButton fab;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,9 +44,33 @@ public class VenueDetail1 extends AppCompatActivity {
         id = extras.getString("id");
         venue= new Select().from(VenueLocation_db.class).where("venueId = ?", id).executeSingle();
         Log.i("ven", id);
-        setTitle(venue.getVenueName());
+        setTitle("");
         fillData(id);
 
+        fab=(FloatingActionButton) findViewById(R.id.fabFavVen);
+        assert fab != null;
+        if(venue.isFavourite()) fab.setImageResource(R.drawable.ic_favorite_white_24dp);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!venue.isFavourite()) {
+                    venue.setFavourite(true);
+                    venue.save();
+                    fab.setImageResource(R.drawable.ic_favorite_white_24dp);
+
+                    Snackbar.make(view, "Venue added to favourites", Snackbar.LENGTH_SHORT)
+                            .setAction("Action", null).show();
+                }else{
+                    venue.setFavourite(false);
+                    venue.save();
+
+                    fab.setImageResource(R.drawable.ic_favorite_border_white_24dp);
+                    Snackbar.make(view, "Venue removed from favourites", Snackbar.LENGTH_SHORT)
+                            .setAction("Action", null).show();
+
+                }
+            }
+        });
     }
     private void fillData(String id){
 

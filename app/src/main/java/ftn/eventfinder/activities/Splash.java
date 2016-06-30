@@ -25,23 +25,13 @@ public class Splash extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_splash);
+        //setContentView(R.layout.activity_splash);
 
         startService(new Intent(this, ClearDbService.class));
 
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-       // Boolean splash = ;
-        if(sharedPreferences.getBoolean("pref_splash", true)) {
-            new Timer().schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    startActivity(new Intent(Splash.this, MainActivity.class));
-                    finish();
-                }
-            }, SPLASH_TIMEOUT);
-        }else{
-            startActivity(new Intent(Splash.this, MainActivity.class));
-        }
+
+        startActivity(new Intent(Splash.this, MainActivity.class));
+
     }
 
     @Override

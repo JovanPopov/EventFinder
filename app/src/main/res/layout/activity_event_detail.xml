@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="ftn.eventfinder.activities.VenueDetail1">
+    tools:context="ftn.eventfinder.activities.EventDetail">
 
     <RelativeLayout
         android:layout_width="fill_parent"
@@ -25,12 +25,12 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_venue_detail1" />
+    <include layout="@layout/content_event_detail" />
 
-</RelativeLayout>
+    </RelativeLayout>
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fabFavVen"
+        android:id="@+id/fabFav"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"

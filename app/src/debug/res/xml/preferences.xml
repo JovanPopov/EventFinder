@@ -26,12 +26,12 @@
         android:title="App settings"
         android:key="app_settings">
 
+
         <CheckBoxPreference
             android:defaultValue="false"
-            android:key="pref_splash"
-            android:summary="Show splash screen at startup"
-            android:title="Splash screen" />
-
+            android:key="pref_face"
+            android:summary="Open facebook page of the event imidiately"
+            android:title="Event page" />
 
         <ListPreference
             android:dialogTitle="Home screen"

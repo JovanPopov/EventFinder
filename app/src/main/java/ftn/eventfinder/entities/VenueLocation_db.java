@@ -39,12 +39,15 @@ public class VenueLocation_db extends Model {
     private String street;
     @Column(name = "zip")
     private String zip;
+    @Column(name = "favourite")
+    private boolean favourite;
+
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     public VenueLocation_db() {
     }
 
-    public VenueLocation_db(String venueId, String venueName, String venueCoverPicture, String venueProfilePicture, String city, String country, Double latitude, Double longitude, String state, String street, String zip, Map<String, Object> additionalProperties) {
+    public VenueLocation_db(String venueId, String venueName, String venueCoverPicture, String venueProfilePicture, String city, String country, Double latitude, Double longitude, String state, String street, String zip, Boolean favourite, Map<String, Object> additionalProperties) {
         this.venueId = venueId;
         this.venueName = venueName;
         this.venueCoverPicture = venueCoverPicture;
@@ -56,6 +59,7 @@ public class VenueLocation_db extends Model {
         this.state = state;
         this.street = street;
         this.zip = zip;
+        this.favourite = favourite;
         this.additionalProperties = additionalProperties;
     }
 
@@ -145,6 +149,14 @@ public class VenueLocation_db extends Model {
 
     public void setZip(String zip) {
         this.zip = zip;
+    }
+
+    public boolean isFavourite() {
+        return favourite;
+    }
+
+    public void setFavourite(boolean favourite) {
+        this.favourite = favourite;
     }
 
     public Map<String, Object> getAdditionalProperties() {

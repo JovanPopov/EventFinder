@@ -58,6 +58,7 @@ import ftn.eventfinder.entities.EventStats_db;
 import ftn.eventfinder.entities.Event_db;
 import ftn.eventfinder.entities.VenueLocation_db;
 import ftn.eventfinder.fragments.EventsListFragment;
+import ftn.eventfinder.fragments.SearchFragment;
 import ftn.eventfinder.fragments.VenuesListFragment;
 import ftn.eventfinder.sync.SyncReceiver;
 import ftn.eventfinder.sync.SyncService;
@@ -329,6 +330,21 @@ public class MainActivity extends AppCompatActivity
                 FragmentTransition.to(VenuesListFragment.newInstance(), this, "venue");
             }else{
                 FragmentTransition.to(existingFragment, this, "venue");
+            }
+           /* FragmentManager fm = getFragmentManager();
+
+            if (fm.findFragmentById(android.R.id.content) == null) {
+                EventsListFragment list = new EventsListFragment();
+                fm.beginTransaction().add(android.R.id.content, list).commit();
+            }*/
+
+        }else if (id == R.id.nav_search) {
+            FragmentManager fm = this.getSupportFragmentManager();
+            Fragment existingFragment = fm.findFragmentByTag("search");
+            if(existingFragment==null) {
+                FragmentTransition.to(SearchFragment.newInstance(), this, "search");
+            }else{
+                FragmentTransition.to(existingFragment, this, "search");
             }
            /* FragmentManager fm = getFragmentManager();
 

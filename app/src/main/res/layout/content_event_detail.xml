@@ -5,24 +5,25 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="ftn.eventfinder.activities.VenueDetail1"
-    tools:showIn="@layout/activity_venue_detail1">
+    tools:context="ftn.eventfinder.activities.EventDetail"
+    tools:showIn="@layout/activity_event_detail">
+
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="120dp"
         android:layout_margin="2dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:id="@+id/venue_detail_cover_picture"
+        android:id="@+id/event_detail_cover_picture"
         android:adjustViewBounds="true"
         android:scaleType="centerCrop"/>
 
     <ImageView
-        android:id="@+id/venue_detail_profile_picture"
+        android:id="@+id/event_detail_profile_picture"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:contentDescription="@null"
-        android:layout_below="@+id/venue_detail_cover_picture"
+        android:layout_below="@+id/event_detail_cover_picture"
         android:layout_margin="2dp"
         android:scaleType="centerCrop"/>
 
@@ -30,29 +31,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:layout_toRightOf="@+id/venue_detail_profile_picture"
+        android:layout_toRightOf="@+id/event_detail_profile_picture"
         android:layout_margin="2dp"
-        android:layout_below="@+id/venue_detail_cover_picture"
-        android:id="@+id/venue_detail_name"
+        android:layout_below="@+id/event_detail_cover_picture"
+        android:id="@+id/event_detail_name"
         android:textColor="@color/wallet_link_text_light"/>
 
     <TextView
-        android:text="Events hosted by this venue:"
+        android:text="Aditional content:"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingTop="10dp"
         android:layout_margin="2dp"
-        android:layout_below="@+id/venue_detail_profile_picture"
+        android:layout_below="@+id/event_detail_profile_picture"
         android:id="@+id/venue_detail_list_string" />
-
-    <RelativeLayout
-        android:paddingTop="10dp"
-        android:layout_width="wrap_content"
-        android:layout_height="200dp"
-        android:layout_below="@+id/venue_detail_list_string"
-        android:layout_centerInParent="true"
-        android:id="@+id/fragmentEventsInVenue" />
-
-
 
 </RelativeLayout>

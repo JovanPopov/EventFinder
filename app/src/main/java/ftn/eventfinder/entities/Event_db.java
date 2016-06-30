@@ -38,13 +38,16 @@ public class Event_db extends Model {
     private Integer eventTimeFromNow;
     @Column(name = "EventStats", onUpdate = Column.ForeignKeyAction.CASCADE, onDelete = Column.ForeignKeyAction.CASCADE)
     private EventStats_db eventStats_db;
+    @Column(name = "favourite")
+    private boolean favourite;
+
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
 
     public Event_db() {
     }
 
-    public Event_db(VenueLocation_db venueLocation, String eventId, String eventName, String eventCoverPicture, String eventProfilePicture, String eventDescription, String eventStarttime, String eventDistance, Integer eventTimeFromNow, EventStats_db eventStats_db, Map<String, Object> additionalProperties) {
+    public Event_db(VenueLocation_db venueLocation, String eventId, String eventName, String eventCoverPicture, String eventProfilePicture, String eventDescription, String eventStarttime, String eventDistance, Integer eventTimeFromNow, EventStats_db eventStats_db, Boolean favourite, Map<String, Object> additionalProperties) {
 
 
         this.venueLocation_db = venueLocation;
@@ -58,6 +61,7 @@ public class Event_db extends Model {
         this.eventTimeFromNow = eventTimeFromNow;
         this.eventStats_db = eventStats_db;
         this.additionalProperties = additionalProperties;
+        this.favourite = favourite;
     }
 
 
@@ -240,6 +244,14 @@ public class Event_db extends Model {
      */
     public void setEventStats(EventStats_db eventStats_db) {
         this.eventStats_db = eventStats_db;
+    }
+
+    public boolean isFavourite() {
+        return favourite;
+    }
+
+    public void setFavourite(boolean favourite) {
+        this.favourite = favourite;
     }
 
     public Map<String, Object> getAdditionalProperties() {

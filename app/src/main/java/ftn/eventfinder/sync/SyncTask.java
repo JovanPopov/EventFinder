@@ -115,7 +115,10 @@ public class SyncTask extends AsyncTask<LatLng, Void, String> {
        }
 
        ints.putExtra(SERVER_RESPONSE, ConnectivityTools.SERVER_RESPONSE_OK);
-        return "New Entites: " + String.valueOf(newEntites);
+
+
+
+        return "Sucsess";
     }
 
 	/*
@@ -303,7 +306,11 @@ public class SyncTask extends AsyncTask<LatLng, Void, String> {
         toast.show();*/
 
         //Toast.makeText(context, "New Entites: " + String.valueOf(newEntites), Toast.LENGTH_SHORT).show();
-        Toast.makeText(context, result, Toast.LENGTH_SHORT).show();
+
+
+        if(newEntites>0) {
+            Toast.makeText(context, String.valueOf(newEntites) + " new events found", Toast.LENGTH_SHORT).show();
+        }
         Log.i("poruka", result);
 
 	}
