@@ -33,10 +33,12 @@ import ftn.eventfinder.R;
 import ftn.eventfinder.RetrofitInt.EventsInterface;
 import ftn.eventfinder.entities.EventStats_db;
 import ftn.eventfinder.entities.Event_db;
+import ftn.eventfinder.entities.Tag_db;
 import ftn.eventfinder.entities.VenueLocation_db;
 import ftn.eventfinder.model.Event;
 import ftn.eventfinder.model.EventStats;
 import ftn.eventfinder.model.EventsResponse;
+import ftn.eventfinder.model.TagsFromServer;
 import ftn.eventfinder.model.VenueLocation;
 import ftn.eventfinder.tools.ConnectivityTools;
 import ftn.eventfinder.tools.SyncUtils;
@@ -113,7 +115,14 @@ public class SyncTask extends AsyncTask<LatLng, Void, String> {
            Log.e("SYNC", "SyncTask", e);
            return "Problem with the database";
        }
+       try {
+           getSetTags();
 
+       } catch (IOException e) {
+           ints.putExtra(SERVER_RESPONSE, ConnectivityTools.SERVER_RESPONSE_ERROR);
+           Log.e("SYNC", "SyncTask", e);
+           return "Failed to connect to our server, please try again later";
+       }
        ints.putExtra(SERVER_RESPONSE, ConnectivityTools.SERVER_RESPONSE_OK);
 
 
@@ -281,6 +290,52 @@ public class SyncTask extends AsyncTask<LatLng, Void, String> {
     }
 
 
+    private void getSetTags() throws IOException {
+
+        List<Event_db> events1 = new Select().from(Event_db.class).execute();
+
+        final String BASE_URL = "http://188.2.87.248:8080/rest/";
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+
+        EventsInterface service = retrofit.create(EventsInterface.class);
+        Call<List<TagsFromServer>> call = service.getallTags();
+        List<TagsFromServer> tags=call.execute().body();
+        Log.i("tags", "tags found " + String.valueOf(tags.size()));
+
+
+
+
+
+            for (TagsFromServer tag : tags) {
+
+                List<Event_db> eee=new Select().from(Event_db.class).where("eventId = ?", tag.getEventId()).execute();
+                if(eee.size()>0) {
+                    List<Tag_db> ttt = new Select().from(Tag_db.class).where("tagId = ?", tag.getTagId()).execute();
+                    if (ttt.size() == 0) {
+                        Event_db e=eee.get(0);
+                        Tag_db t = new Tag_db();
+                        t.setValue(tag.getValue());
+                        t.setWeight(tag.getWeight());
+                        t.setTagId(tag.getTagId());
+
+                        t.setEvent_db(e);
+                        t.save();
+                        e.save();
+                        Log.i("tags", "tag saved");
+                    }else {
+                        Tag_db ts = ttt.get(0);
+                        ts.setWeight(tag.getWeight());
+                        ts.save();
+                    }
+                }
+
+        }
+    }
 
     @Override
 	protected void onPostExecute(String result) {

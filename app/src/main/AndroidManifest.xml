@@ -30,16 +30,27 @@
 
         <service android:name=".sync.SyncService" />
         <service android:name=".sync.ClearDbService" />
+        <service android:name=".sync.GetTagsService" />
+        <service android:name=".sync.UpVoteTag" />
 
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable"/>
+        </activity>
+
         <activity
             android:name=".activities.MyPreferenceActivity"
             android:label="Preferences"
             android:parentActivityName=".MainActivity">
+
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
@@ -60,6 +71,8 @@
         <activity
             android:name=".activities.MapsActivity"
             android:label="@string/title_activity_maps" />
+
+
         <activity
             android:name=".activities.Splash"
             android:label="EventFinder"
@@ -71,15 +84,20 @@
             </intent-filter>
         </activity>
 
+
+
         <meta-data
             android:name="AA_DB_NAME"
             android:value="EventFinder.db" />
         <meta-data
             android:name="AA_DB_VERSION"
-            android:value="11" />
+            android:value="18" />
         <meta-data
             android:name="AA_MODELS"
-            android:value="ftn.eventfinder.entities.Event_db,                            ftn.eventfinder.entities.EventStats_db,                            ftn.eventfinder.entities.VenueLocation_db" />
+            android:value="ftn.eventfinder.entities.Event_db,
+                                        ftn.eventfinder.entities.EventStats_db,
+                                        ftn.eventfinder.entities.VenueLocation_db,
+                                        ftn.eventfinder.entities.Tag_db"/>
 
         <provider
             android:name="com.activeandroid.content.ContentProvider"
@@ -89,21 +107,21 @@
         <activity
             android:name=".activities.VenueDetail1"
             android:label="@string/title_activity_venue_detail1"
-            android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
         </activity>
         <activity
             android:name=".activities.EventDetail"
             android:label="@string/title_activity_event_detail"
             android:theme="@style/AppTheme"
-            android:parentActivityName=".MainActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+            android:windowSoftInputMode="adjustPan">
         </activity>
+
+        <provider
+            android:name=".contentProviders.EventNamesProvider"
+            android:authorities="ngvl.android.demosearch.citysuggestion"
+            android:enabled="true"
+            android:exported="true"/>
+
     </application>
 
 </manifest>

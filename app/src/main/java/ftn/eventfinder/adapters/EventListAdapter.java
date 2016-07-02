@@ -19,11 +19,14 @@ import com.squareup.picasso.Picasso;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
 import ftn.eventfinder.R;
 import ftn.eventfinder.entities.Event_db;
+import ftn.eventfinder.entities.Tag_db;
 
 public class EventListAdapter  extends ArrayAdapter {
 
@@ -118,6 +121,25 @@ public class EventListAdapter  extends ArrayAdapter {
         }
 
 
+
+        TextView tags = (TextView) view.findViewById(R.id.event_info_tags);
+        String s="";
+        List<Tag_db> ta=event.getTags();
+        Collections.sort(ta, new Comparator<Tag_db>() {
+            @Override public int compare(Tag_db p1, Tag_db p2) {
+                return p2.getWeight() - p1.getWeight(); // Ascending
+            }
+        });
+        int ip=0;
+        for (Tag_db t :ta) {
+            s = s + "#" + t.getValue() + " ";
+            ip++;
+            if(ip==3)break;
+        }
+
+
+
+        tags.setText(s);
 
 
 

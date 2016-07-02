@@ -19,25 +19,27 @@ import android.widget.ListView;
 
 import com.activeandroid.query.Select;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ftn.eventfinder.R;
 import ftn.eventfinder.activities.EventDetail;
 import ftn.eventfinder.adapters.EventListAdapter;
 import ftn.eventfinder.entities.Event_db;
+import ftn.eventfinder.entities.Tag_db;
 import ftn.eventfinder.entities.VenueLocation_db;
 
 /**
  * Created by Jovan on 4.6.2016.
  */
-public class EventsInVenueFragment extends ListFragment {
-private String id;
+public class SearchResultFragment extends ListFragment {
+    private String query;
 
     EventListAdapter mAdapter;
 
-    public static EventsInVenueFragment newInstance() {
+    public static SearchResultFragment newInstance() {
 
-        EventsInVenueFragment mpf = new EventsInVenueFragment();
+        SearchResultFragment mpf = new SearchResultFragment();
 
 
         return mpf;
@@ -48,13 +50,11 @@ private String id;
 
         Bundle bundle = this.getArguments();
         if (bundle != null) {
-            id = bundle.getString("id");
+            query = bundle.getString("query");
         }
 
         super.onCreate(savedInstanceState);
-        VenueLocation_db vbd= new Select().from(VenueLocation_db.class).where("venueId = ?", id).executeSingle();
-        List<Event_db> events= vbd.events();
-        mAdapter = new EventListAdapter(getActivity(),events);
+        mAdapter = new EventListAdapter(getActivity(),getResults(query));
         setListAdapter(mAdapter);
     }
     @Override
@@ -70,7 +70,6 @@ private String id;
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
-        Log.i("poruka","usao u listener");
         //Event_db event = this.queryResults.get(position);
         Event_db event = (Event_db) mAdapter.getItem(position);
 
@@ -87,7 +86,6 @@ private String id;
             startActivity(intent);
         }
 
-
     }
     @Override
     public void onResume() {
@@ -103,12 +101,48 @@ private String id;
         @Override
         public void onReceive(Context context, Intent intent) {
             mAdapter.clear();
-            VenueLocation_db vbd= new Select().from(VenueLocation_db.class).where("venueId = ?", id).executeSingle();
-            List<Event_db> events= vbd.events();
-            mAdapter.addAll(events);
+            mAdapter.addAll(getResults(query));
             mAdapter.notifyDataSetChanged();
         }
     };
+
+    public List<Event_db> getResults(String query){
+
+       List<Event_db> start = new Select().from(Event_db.class).orderBy("eventStarttime ASC").execute();
+        List<Event_db> result=new ArrayList<Event_db>();
+        for (Event_db event:start) {
+            if (event.getEventName().toLowerCase().contains(query)) {
+                result.add(event);
+            }
+            for(Tag_db tag:event.getTags()){
+                    if(tag.getValue().toLowerCase().contains(query))
+                        if(!result.contains(event)) result.add(event);
+                    break;
+
+                }
+
+
+
+
+        }
+
+        List<VenueLocation_db> venues = new Select().from(VenueLocation_db.class).execute();
+        for(VenueLocation_db venue:venues) {
+            if (venue.getVenueName().toLowerCase().contains(query)) {
+                for (Event_db e : venue.events()) {
+                    if(!result.contains(e)) result.add(e);
+
+
+                }
+            }
+        }
+
+        Log.i("search",query);
+        Log.i("search",String.valueOf(result.size()));
+
+        return result;
+    }
+
 
     @Override
     public void onPause() {

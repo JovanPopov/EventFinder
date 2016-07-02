@@ -19,11 +19,16 @@ import com.squareup.picasso.Picasso;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
 import ftn.eventfinder.R;
+import ftn.eventfinder.entities.Event_db;
+import ftn.eventfinder.entities.Tag_db;
 import ftn.eventfinder.entities.VenueLocation_db;
 
 public class VenueListAdapter extends ArrayAdapter {
@@ -104,6 +109,58 @@ public class VenueListAdapter extends ArrayAdapter {
                     .placeholder(R.drawable.image_placeholder)
                     .into(image);
         }
+
+
+        TextView tags = (TextView) view.findViewById(R.id.venue_info_tags);
+        String s="";
+
+        List<Tag_db> ttt = new ArrayList<Tag_db>();
+        List<Event_db> events1 = venue.events();
+        List<Tag_db> results = new ArrayList<Tag_db>();
+        for(Event_db event : events1) {
+
+            ttt.addAll(event.getTags());
+        }
+
+        for (Tag_db tag1: ttt) {
+            int num=0;
+            for (Tag_db tag2: ttt) {
+
+                if(tag1.getValue().equals(tag2.getValue())) num++;
+
+
+            }
+            if(num>1) {
+                boolean helper=true;
+                for (Tag_db t : results) {
+                    if(t.getValue().equals(tag1.getValue())){
+                        helper=false;
+                        break;
+                    }
+                }
+
+                if(helper)results.add(tag1);
+            }
+        }
+
+        Collections.sort(results, new Comparator<Tag_db>() {
+            @Override public int compare(Tag_db p1, Tag_db p2) {
+                return p2.getWeight() - p1.getWeight(); // Ascending
+            }
+        });
+
+
+        int ip=0;
+        for (Tag_db t : results) {
+            s = s + "#" + t.getValue() + " ";
+            ip++;
+            if(ip==3)break;
+        }
+
+
+
+        tags.setText(s);
+
 
         return view;
 

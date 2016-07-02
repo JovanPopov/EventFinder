@@ -47,13 +47,17 @@ import com.squareup.picasso.Picasso;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
 import ftn.eventfinder.R;
 import ftn.eventfinder.activities.EventDetail;
+import ftn.eventfinder.activities.VenueDetail1;
 import ftn.eventfinder.entities.Event_db;
+import ftn.eventfinder.entities.Tag_db;
 import ftn.eventfinder.sync.SyncService;
 
 
@@ -710,6 +714,16 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 
 			}
 		});
+
+		map.setOnInfoWindowLongClickListener(new GoogleMap.OnInfoWindowLongClickListener() {
+			@Override
+			public void onInfoWindowLongClick(Marker marker) {
+				Event_db event = markers.get(marker);
+				Intent intent = new Intent(getActivity(), VenueDetail1.class);
+				intent.putExtra("id", event.getVenueLocation().getVenueId());
+				startActivity(intent);
+			}
+		});
 		map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
 			@Override
 			public void onMapClick(LatLng latLng) {
@@ -836,7 +850,24 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
 						.into(image, new MarkerCallback(arg0));
 			}
 
+			TextView tags = (TextView) view.findViewById(R.id.event_info_tags);
+			String s="";
+			List<Tag_db> ta=event.getTags();
+			Collections.sort(ta, new Comparator<Tag_db>() {
+				@Override public int compare(Tag_db p1, Tag_db p2) {
+					return p2.getWeight() - p1.getWeight(); // Ascending
+				}
+			});
+			int ip=0;
+			for (Tag_db t : event.getTags()) {
+				s = s + "#" + t.getValue() + " ";
+				ip++;
+				if(ip==3)break;
+			}
 
+
+
+			tags.setText(s);
 
 			return view;
 		}

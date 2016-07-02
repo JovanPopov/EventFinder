@@ -3,6 +3,8 @@ package ftn.eventfinder;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.app.SearchManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -10,6 +12,7 @@ import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.preference.PreferenceManager;
@@ -22,6 +25,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -52,14 +57,18 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 
 import java.util.List;
 
+import ftn.eventfinder.activities.EventDetail;
 import ftn.eventfinder.dialogs.LocationDialog;
 import ftn.eventfinder.dialogs.SortDialog;
 import ftn.eventfinder.entities.EventStats_db;
 import ftn.eventfinder.entities.Event_db;
+import ftn.eventfinder.entities.Tag_db;
 import ftn.eventfinder.entities.VenueLocation_db;
 import ftn.eventfinder.fragments.EventsListFragment;
 import ftn.eventfinder.fragments.SearchFragment;
+import ftn.eventfinder.fragments.SearchResultFragment;
 import ftn.eventfinder.fragments.VenuesListFragment;
+import ftn.eventfinder.model.Tag;
 import ftn.eventfinder.sync.SyncReceiver;
 import ftn.eventfinder.sync.SyncService;
 import ftn.eventfinder.activities.MyPreferenceActivity;
@@ -68,7 +77,7 @@ import ftn.eventfinder.tools.ConnectivityTools;
 import ftn.eventfinder.tools.FragmentTransition;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.ConnectionCallbacks,
+        implements SearchView.OnQueryTextListener,NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, LocationListener, ResultCallback<LocationSettingsResult> {
 
     //sync
@@ -159,7 +168,9 @@ public class MainActivity extends AppCompatActivity
                 fragmentTag="list";
             }else if(savedInstanceState.getBoolean("venue")){
             fragmentTag="venue";
-        }
+            }else if(savedInstanceState.getBoolean("searchFragment")){
+                fragmentTag="searchFragment";
+            }
             Log.i("main", fragmentTag);
             FragmentManager fm = this.getSupportFragmentManager();
             Fragment existingFragment = fm.findFragmentByTag(fragmentTag);
@@ -203,6 +214,13 @@ public class MainActivity extends AppCompatActivity
             outState.putBoolean("venue", true);
             Log.i("main", "venue saved ");
         }
+
+        SearchResultFragment myFragment3 = (SearchResultFragment)fm.findFragmentByTag("searchFragment");
+        if (myFragment3 != null && myFragment3.isVisible()) {
+            outState.putBoolean("searchFragment", true);
+            Log.i("main", "search saved ");
+        }
+
         outState.putBoolean("locationChecked", locationChecked);
     }
 
@@ -246,6 +264,15 @@ public class MainActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+        MenuItem searchItem = menu.findItem(R.id.search);
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchView.setOnQueryTextListener(this);
+
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(
+                new ComponentName(this, MainActivity.class)));
+        searchView.setIconifiedByDefault(false);
+
         return true;
     }
 
@@ -257,7 +284,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+ /*       if (id == R.id.action_settings) {
             return true;
         }
 
@@ -273,7 +300,7 @@ public class MainActivity extends AppCompatActivity
             dialog.show();
             return true;
         }
-
+*/
         if (id == R.id.action_refresh) {
             startService(getLocation());
             return true;
@@ -369,20 +396,23 @@ public class MainActivity extends AppCompatActivity
             new Delete().from(EventStats_db.class).execute();
             new Delete().from(VenueLocation_db.class).execute();
             new Delete().from(Event_db.class).execute();
+            new Delete().from(Tag_db.class).execute();
             List<Event_db> eve=new Select().from(Event_db.class).execute();
-            List<EventStats_db> eve1=new Select().from(EventStats_db.class).execute();
             List<VenueLocation_db> eve2=new Select().from(VenueLocation_db.class).execute();
+            List<VenueLocation_db> eve3=new Select().from(Tag_db.class).execute();
             Toast.makeText(this,"Events size: " + String.valueOf(eve.size()) + "\n" +
                             "VenueLocation size: " + String.valueOf(eve2.size())+ "\n" +
-                            "EventStats size: " + String.valueOf(eve1.size())
+                            "Number of tags: " + String.valueOf(eve3.size())
                     , Toast.LENGTH_LONG).show();
         } else if (id == R.id.nav_send) {
             int eve=new Select().from(Event_db.class).count();
             int eve1=new Select().from(EventStats_db.class).count();
             int eve2=new Select().from(VenueLocation_db.class).count();
+            int eve3=new Select().from(Tag_db.class).count();
             Toast.makeText(this,"Events size: " + String.valueOf(eve) + "\n" +
                     "VenueLocation size: " + String.valueOf(eve2)+ "\n" +
-                    "EventStats size: " + String.valueOf(eve1)
+                    "EventStats size: " + String.valueOf(eve1) + "\n" +
+                            "Number of tags:" + String.valueOf(eve3)
                     , Toast.LENGTH_LONG).show();
 
 
@@ -584,4 +614,62 @@ public class MainActivity extends AppCompatActivity
         dialog.show();
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            //Toast.makeText(this, "Searching by: "+ query, Toast.LENGTH_SHORT).show();
+
+            FragmentManager fm = this.getSupportFragmentManager();
+            //Fragment existingFragment = fm.findFragmentByTag("searchFragment");
+            //if(existingFragment==null) {
+                Bundle args = new Bundle();
+                SearchResultFragment toFragment = SearchResultFragment.newInstance();
+                args.putString("query", query);
+                toFragment.setArguments(args);
+                FragmentTransaction transaction = fm
+                        .beginTransaction()
+                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                        .replace(R.id.mainContent, toFragment,"searchFragment");
+                transaction.addToBackStack(null);
+                transaction.commit();
+          /*  }else{
+                FragmentTransaction transaction = fm
+                        .beginTransaction()
+                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                        .replace(R.id.fragmentEventsInVenue,existingFragment, "searchFragment");
+                transaction.addToBackStack(null);
+                transaction.commit();
+            }*/
+
+
+
+        } else if (Intent.ACTION_VIEW.equals(intent.getAction())) {
+            String uri = intent.getDataString();
+            uri=uri.replace("events.provier/","");
+            //Toast.makeText(this, uri, Toast.LENGTH_SHORT).show();
+            Log.i("search", uri);
+
+            if(sharedPreferences.getBoolean("pref_face", false)) {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.facebook.com/events/" +uri));
+                startActivity(browserIntent);
+            }else{
+                Intent intent1 = new Intent(this, EventDetail.class);
+                intent1.putExtra("id", uri);
+                startActivity(intent1);
+            }
+        }
+    }
+
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        return false;
+    }
 }

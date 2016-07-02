@@ -3,12 +3,17 @@ package ftn.eventfinder.entities;
 
 
 
+import android.database.Cursor;
+
+import com.activeandroid.Cache;
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
+import com.activeandroid.query.Select;
 import com.google.gson.annotations.Expose;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
 
@@ -262,5 +267,27 @@ public class Event_db extends Model {
         this.additionalProperties.put(name, value);
     }
 
+    public static Cursor fetchResultCursor() {
+
+        String tableName = Cache.getTableInfo(Event_db.class).getTableName();
+
+        // Query all items without any conditions
+
+        String resultRecords = new Select(tableName + ".*, " + tableName + ".Id as _id").
+
+                from(Event_db.class).toSql();
+
+        // Execute query on the underlying ActiveAndroid SQLite database
+
+        Cursor resultCursor = Cache.openDatabase().rawQuery(resultRecords, null);
+
+        return resultCursor;
+
+    }
+
+
+    public List<Tag_db> getTags() {
+        return getMany(Tag_db.class, "event");
+    }
 
 }
