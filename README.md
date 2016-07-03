@@ -1,7 +1,7 @@
 # EventFinder
 
 
-#### Dodatni fjalovi
+#### Dodatni fajlovi
 
 APK fajl: https://drive.google.com/file/d/0B_UKKGOJ_LmGeExKcUd3MlpEWGc/view?usp=sharing
 
