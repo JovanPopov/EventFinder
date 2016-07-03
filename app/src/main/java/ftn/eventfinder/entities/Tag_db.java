@@ -22,16 +22,19 @@ public class Tag_db extends Model {
     Event_db event_db;
     @Column(name = "vote")
     boolean vote;
+    @Column(name = "venueId")
+    String venueId;
 
     public Tag_db() {
     }
 
-    public Tag_db(String value, int weight, Event_db event_db, int tagId, boolean vote) {
+    public Tag_db(String value, int weight, Event_db event_db, int tagId, boolean vote, String venueId) {
         this.value = value;
         this.weight = weight;
         this.event_db = event_db;
         this.tagId=tagId;
         this.vote=vote;
+        this.venueId=venueId;
     }
 
     public String getValue() {
@@ -72,5 +75,13 @@ public class Tag_db extends Model {
 
     public void setVote(boolean vote) {
         this.vote = vote;
+    }
+
+    public String getVenueId() {
+        return venueId;
+    }
+
+    public void setVenueId(String venueId) {
+        this.venueId = venueId;
     }
 }

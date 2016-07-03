@@ -32,52 +32,7 @@
                  <include layout="@layout/content_event_detail" />
             </ScrollView>
 
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:id="@+id/TagsLayout"
-            android:layout_alignParentBottom="true"
-            >
 
-
-            <RelativeLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <EditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/tagInput"
-                    android:hint="Add a tag"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentStart="true"
-                    android:imeOptions="actionDone"
-                    android:inputType="text"
-                    android:singleLine="true"
-                    android:layout_marginRight="50dp"/>
-
-
-
-            </RelativeLayout>
-
-            <HorizontalScrollView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal">
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="wrap_content"
-                android:layout_height="25dp"
-                android:id="@+id/tagsContent"
-                android:textSize="20dp"
-                android:textColor="@android:color/black"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="3dp" />
-            </HorizontalScrollView>
-        </LinearLayout>
     </RelativeLayout>
 
 

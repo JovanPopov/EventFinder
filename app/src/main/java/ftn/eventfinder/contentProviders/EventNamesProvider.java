@@ -58,7 +58,7 @@ public class EventNamesProvider extends ContentProvider {
                     for(Tag_db tag:event.getTags()){
                         if(tag.getValue().toUpperCase().contains(query))
                             cursor.addRow(new Object[]{ i, "#" + tag.getValue().toUpperCase() + " " + event.getEventName(), event.getEventId() });
-                            break;
+                            //break;
                     }
 
 

@@ -15,6 +15,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.activeandroid.query.Select;
 import com.squareup.picasso.Picasso;
 
 import java.text.ParseException;
@@ -117,10 +118,12 @@ public class VenueListAdapter extends ArrayAdapter {
         List<Tag_db> ttt = new ArrayList<Tag_db>();
         List<Event_db> events1 = venue.events();
         List<Tag_db> results = new ArrayList<Tag_db>();
-        for(Event_db event : events1) {
+      /*  for(Event_db event : events1) {
 
             ttt.addAll(event.getTags());
-        }
+        }*/
+
+        ttt= new Select().from(Tag_db.class).where("venueId = ?", venue.getVenueId()).execute();
 
         for (Tag_db tag1: ttt) {
             int num=0;

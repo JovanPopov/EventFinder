@@ -59,6 +59,7 @@ public class SyncTask extends AsyncTask<LatLng, Void, String> {
     private Date dateLastSynchronized;
     private SimpleDateFormat dateFormat;
     private String dateLastSynchronizedString;
+    String tagStr="";
 
     public static String RESULT_CODE = "RESULT_CODE";
 
@@ -105,7 +106,7 @@ public class SyncTask extends AsyncTask<LatLng, Void, String> {
         } catch (IOException e) {
             ints.putExtra(SERVER_RESPONSE, ConnectivityTools.SERVER_RESPONSE_ERROR);
             Log.e("SYNC", "SyncTask", e);
-            return "Failed to connect to our server, please try again later";
+            return "Failed to connect to our events server, please try again later";
         }
        try {
            persist();
@@ -121,13 +122,13 @@ public class SyncTask extends AsyncTask<LatLng, Void, String> {
        } catch (IOException e) {
            ints.putExtra(SERVER_RESPONSE, ConnectivityTools.SERVER_RESPONSE_ERROR);
            Log.e("SYNC", "SyncTask", e);
-           return "Failed to connect to our server, please try again later";
+           tagStr= "Failed to connect to our tags server";
        }
        ints.putExtra(SERVER_RESPONSE, ConnectivityTools.SERVER_RESPONSE_OK);
 
 
 
-        return "Sucsess";
+        return "ok";
     }
 
 	/*
@@ -314,18 +315,21 @@ public class SyncTask extends AsyncTask<LatLng, Void, String> {
             for (TagsFromServer tag : tags) {
 
                 List<Event_db> eee=new Select().from(Event_db.class).where("eventId = ?", tag.getEventId()).execute();
-                if(eee.size()>0) {
+
                     List<Tag_db> ttt = new Select().from(Tag_db.class).where("tagId = ?", tag.getTagId()).execute();
                     if (ttt.size() == 0) {
-                        Event_db e=eee.get(0);
+
                         Tag_db t = new Tag_db();
                         t.setValue(tag.getValue());
                         t.setWeight(tag.getWeight());
                         t.setTagId(tag.getTagId());
-
-                        t.setEvent_db(e);
+                        t.setVenueId(tag.getVanueId());
+                        if(eee.size()>0) {
+                            Event_db e=eee.get(0);
+                            t.setEvent_db(e);
+                        }
                         t.save();
-                        e.save();
+                        //e.save();
                         Log.i("tags", "tag saved");
                     }else {
                         Tag_db ts = ttt.get(0);
@@ -334,7 +338,7 @@ public class SyncTask extends AsyncTask<LatLng, Void, String> {
                     }
                 }
 
-        }
+
     }
 
     @Override
@@ -361,11 +365,23 @@ public class SyncTask extends AsyncTask<LatLng, Void, String> {
         toast.show();*/
 
         //Toast.makeText(context, "New Entites: " + String.valueOf(newEntites), Toast.LENGTH_SHORT).show();
+        if(result.equals("ok")) {
 
-
-        if(newEntites>0) {
-            Toast.makeText(context, String.valueOf(newEntites) + " new events found", Toast.LENGTH_SHORT).show();
+            if (newEntites > 0) {
+                Toast.makeText(context, String.valueOf(newEntites) + " new events found", Toast.LENGTH_SHORT).show();
+            }else{
+                Toast toast = new Toast(context);
+                ImageView view = new ImageView(context);
+                view.setImageResource(R.drawable.ic_action_refresh);
+                toast.setView(view);
+                toast.show();
+            }
+        }else{
+            Toast.makeText(context, result, Toast.LENGTH_SHORT).show();
         }
+
+        if(!tagStr.equals("")) Toast.makeText(context, tagStr, Toast.LENGTH_SHORT).show();
+
         Log.i("poruka", result);
 
 	}

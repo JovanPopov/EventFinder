@@ -188,10 +188,13 @@ public class VenueDetail1 extends AppCompatActivity {
         List<Tag_db> ttt = new ArrayList<Tag_db>();
         List<Event_db> events = venue.events();
         List<Tag_db> results = new ArrayList<Tag_db>();
-        for(Event_db event : events) {
+      /*  for(Event_db event : events) {
 
             ttt.addAll(event.getTags());
-        }
+        }*/
+
+
+        ttt= new Select().from(Tag_db.class).where("venueId = ?", id).execute();
 
             for (Tag_db tag1: ttt) {
                 int num=0;
@@ -218,12 +221,12 @@ public class VenueDetail1 extends AppCompatActivity {
 
 
 
-       /* Collections.sort(results, new Comparator<Tag_db>() {
+        Collections.sort(results, new Comparator<Tag_db>() {
             @Override public int compare(Tag_db p1, Tag_db p2) {
                 return p2.getWeight() - p1.getWeight(); // Ascending
             }
 
-        });*/
+        });
 
 
 

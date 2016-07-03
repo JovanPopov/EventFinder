@@ -7,6 +7,7 @@ import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.activeandroid.query.Delete;
 import com.activeandroid.query.Select;
 
 import java.text.ParseException;
@@ -17,6 +18,7 @@ import java.util.List;
 
 import ftn.eventfinder.MainActivity;
 import ftn.eventfinder.entities.Event_db;
+import ftn.eventfinder.entities.Tag_db;
 import ftn.eventfinder.entities.VenueLocation_db;
 
 /**
@@ -83,6 +85,7 @@ public class ClearDbService extends IntentService {
                  ) {
                 if( vn.events().size()==0) {
                     Log.i("clear", "venue deleted" + vn.getVenueName());
+                    new Delete().from(Tag_db.class).where("venueId = ?", vn.getVenueId()).execute();
                     vn.delete();
                 }
             }

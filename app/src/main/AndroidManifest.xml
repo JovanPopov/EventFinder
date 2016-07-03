@@ -68,9 +68,6 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity
-            android:name=".activities.MapsActivity"
-            android:label="@string/title_activity_maps" />
 
 
         <activity
@@ -91,7 +88,7 @@
             android:value="EventFinder.db" />
         <meta-data
             android:name="AA_DB_VERSION"
-            android:value="18" />
+            android:value="19" />
         <meta-data
             android:name="AA_MODELS"
             android:value="ftn.eventfinder.entities.Event_db,

@@ -117,7 +117,7 @@ public class SearchResultFragment extends ListFragment {
             for(Tag_db tag:event.getTags()){
                     if(tag.getValue().toLowerCase().contains(query))
                         if(!result.contains(event)) result.add(event);
-                    break;
+                   // break;
 
                 }
 

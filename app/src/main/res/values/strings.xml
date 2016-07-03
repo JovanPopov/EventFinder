@@ -65,13 +65,11 @@
     <string-array name="pref_home_entries">
         <item>Map</item>
         <item>List</item>
-        <item>Debug</item>
     </string-array>
 
     <string-array name="pref_home_values">
         <item>map</item>
         <item>list</item>
-        <item>debug</item>
     </string-array>
 
 

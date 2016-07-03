@@ -16,10 +16,6 @@
             android:id="@+id/nav_venue"
             android:icon="@drawable/ic_list_black_24dp"
             android:title="Venues" />
-        <item
-            android:id="@+id/nav_search"
-            android:icon="@drawable/places_ic_search"
-            android:title="Search" />
     </group>
 
     <group
@@ -35,16 +31,16 @@
             android:title="Settings" />
     </group>
 
-    <item android:title="Database">
+    <item android:title="Data">
         <menu>
             <item
-                android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Delete" />
-            <item
                 android:id="@+id/nav_send"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Check" />
+                android:icon="@drawable/ic_action_about"
+                android:title="Check status" />
+            <item
+                android:id="@+id/nav_share"
+                android:icon="@drawable/places_ic_clear"
+                android:title="Clear application data" />
         </menu>
     </item>
 

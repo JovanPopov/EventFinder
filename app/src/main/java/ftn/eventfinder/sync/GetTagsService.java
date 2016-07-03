@@ -73,8 +73,8 @@ public class GetTagsService extends IntentService {
         for (TagsFromServer tag : tags) {
 
             List<Event_db> eee=new Select().from(Event_db.class).where("eventId = ?", tag.getEventId()).execute();
-            if(eee.size()>0) {
-                Event_db e=eee.get(0);
+
+
                 List<Tag_db> ttt = new Select().from(Tag_db.class).where("tagId = ?", tag.getTagId()).execute();
                 if (ttt.size() == 0) {
 
@@ -82,12 +82,15 @@ public class GetTagsService extends IntentService {
                     t.setValue(tag.getValue());
                     t.setWeight(tag.getWeight());
                     t.setTagId(tag.getTagId());
-                    t.setEvent_db(e);
-
+                    if(eee.size()>0) {
+                        Event_db e=eee.get(0);
+                        t.setEvent_db(e);
+                    }
+                    t.setVenueId(tag.getVanueId());
                     if(tag.getValue().equals(value) && tag.getEventId().equals(eventId)) t.setVote(true);
 
                     t.save();
-                    e.save();
+                    //e.save();
                     Log.i("tags", "tag saved");
                 }else {
 
@@ -100,6 +103,6 @@ public class GetTagsService extends IntentService {
                 }
             }
 
-        }
+
     }
 }
