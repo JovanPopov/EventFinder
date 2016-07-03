@@ -294,7 +294,7 @@ public class SyncTask extends AsyncTask<LatLng, Void, String> {
 
         List<Event_db> events1 = new Select().from(Event_db.class).execute();
 
-        final String BASE_URL = "http://188.2.87.248:8080/rest/";
+        final String BASE_URL = "http://188.2.87.248:4000/rest/";
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)

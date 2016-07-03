@@ -50,7 +50,7 @@ public class UpVoteTag extends IntentService {
 
     private void upVote( int id) throws IOException{
 
-        final String BASE_URL = "http://188.2.87.248:8080/rest/";
+        final String BASE_URL = "http://188.2.87.248:4000/rest/";
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)

@@ -46,7 +46,10 @@
                 android:paddingTop="10dp"
                 />-->
 
-
+            <HorizontalScrollView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal">
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="wrap_content"
@@ -55,9 +58,10 @@
                 android:textSize="20dp"
                 android:textColor="@android:color/black"
                 android:layout_marginTop="10dp"
-                android:layout_marginBottom="3dp"
-                android:layout_gravity="center_horizontal" />
+                android:layout_marginBottom="3dp" />
+            </HorizontalScrollView>
         </LinearLayout>
+
 
 
 </RelativeLayout>

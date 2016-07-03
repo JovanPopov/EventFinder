@@ -119,7 +119,7 @@ public class EventDetail extends AppCompatActivity {
                         Tag tag = new Tag(event.getEventId(), event.getVenueLocation().getVenueId(), inputTag);
 
 
-                        final String BASE_URL = "http://188.2.87.248:8080/rest/";
+                        final String BASE_URL = "http://188.2.87.248:4000/rest/";
 
                         Retrofit retrofit = new Retrofit.Builder()
                                 .baseUrl(BASE_URL)
